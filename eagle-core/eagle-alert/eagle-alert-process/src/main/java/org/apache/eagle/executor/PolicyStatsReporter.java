@@ -17,22 +17,22 @@
  *
  */
 
-package org.apache.eagle.alert.policystate.deltaevent;
-
-import java.io.Closeable;
-import java.io.IOException;
+package org.apache.eagle.executor;
 
 /**
- * interface for persisting delta events which can be used for replaying events based on latest snapshot while doing failover
+ * interface for reporting policy statistics including
+ * 1. # of incoming events
+ * 2. # of evaluated polices
+ * 3. # of failures in policy evaluation
+ * 4. # of alerts
  */
-public interface DeltaEventPersister<Key, Value> extends Closeable{
-    /**
-     * store event and return id which represents that event,
-     * the return id will be used for replaying
-     * @param key
-     * @param event
-     * @return
-     * @throws Exception
-     */
-    long store(Key key, Value event) throws Exception;
+public interface PolicyStatsReporter {
+    public final static String EAGLE_EVENT_COUNT = "eagle.event.count";
+    public final static String EAGLE_POLICY_EVAL_COUNT = "eagle.policy.eval.count";
+    public final static String EAGLE_POLICY_EVAL_FAIL_COUNT = "eagle.policy.eval.fail.count";
+    public final static String EAGLE_ALERT_COUNT = "eagle.alert.count";
+    void incrIncomingEvent();
+    void incrPolicyEvaluation(String policyId);
+    void incrPolicyEvaluationFailure(String policyId);
+    void incrAlert(String policyId, int occurrences);
 }

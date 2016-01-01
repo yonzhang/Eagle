@@ -24,8 +24,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
+import java.io.IOException;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.Future;
 
 /**
@@ -55,7 +55,7 @@ public class DeltaEventKafkaPersister implements DeltaEventPersister<DeltaEventK
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         this.producer.close();
     }
 }

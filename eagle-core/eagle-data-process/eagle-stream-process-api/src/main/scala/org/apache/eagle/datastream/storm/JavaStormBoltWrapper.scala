@@ -22,27 +22,49 @@ import backtype.storm.task.{OutputCollector, TopologyContext}
 import backtype.storm.topology.OutputFieldsDeclarer
 import backtype.storm.topology.base.BaseRichBolt
 import backtype.storm.tuple.{Fields, Tuple}
+import com.typesafe.config.Config
+import org.apache.eagle.alert.policystate.snapshot.{StateSnapshotEagleServiceDAOImpl, StateSnapshotDAO, Snapshotable, StateSnapshotService}
 import org.apache.eagle.datastream.{Collector, EagleTuple, JavaStormStreamExecutor}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 
-case class JavaStormBoltWrapper(worker : JavaStormStreamExecutor[EagleTuple]) extends BaseRichBolt{
+case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecutor[EagleTuple]) extends BaseRichBolt{
   val LOG = LoggerFactory.getLogger(StormBoltWrapper.getClass)
   var _collector : OutputCollector = null
+  var _snapshotLock : AnyRef = null
+  @transient
+  var _snaphostService : StateSnapshotService = null
 
   override def prepare(stormConf: util.Map[_, _], context: TopologyContext, collector: OutputCollector): Unit = {
     _collector = collector
     worker.init
+    if(worker.isInstanceOf[Snapshotable]) {
+      _snapshotLock = new Object
+      _snaphostService =
+        new StateSnapshotService(config, worker.asInstanceOf[Snapshotable], new StateSnapshotEagleServiceDAOImpl(), _snapshotLock)
+    }
   }
 
   override def execute(input : Tuple): Unit ={
-    worker.flatMap(input.getValues, new Collector[EagleTuple](){
-      def collect(t: EagleTuple): Unit ={
+    _snapshotLock.synchronized {
+      // the sequence of dispatch is significant, don't exchange them
+      dispatchToFlatmap(input)
+      dispatchToDeltaEventPersist(input)
+      _collector.ack(input)
+    }
+  }
+
+  private def dispatchToFlatmap(input : Tuple) : Unit = {
+    worker.flatMap(input.getValues, new Collector[EagleTuple]() {
+      def collect(t: EagleTuple): Unit = {
         _collector.emit(input, t.getList.asJava)
       }
     })
-    _collector.ack(input)
+  }
+
+  private def dispatchToDeltaEventPersist(input: Tuple) : Unit = {
+
   }
 
   override def declareOutputFields(declarer : OutputFieldsDeclarer): Unit ={

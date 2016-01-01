@@ -21,8 +21,15 @@ package org.apache.eagle.alert.policystate.snapshot;
 
 /**
  * interface for returning current state and recovering from state provided outside
+ * This is to align with org.wso2.siddhi.core.util.snapshot.Snapshotable
  */
 public interface Snapshotable {
-    byte[] currentState();
-    void restoreState(byte[] state);
+    public byte[] currentState();
+    public void restoreState(byte[] state);
+
+    /**
+     * unique Id to identity this Snapshotable object. When restoring state, it is used for check if the element still exists
+     * @return
+     */
+    public String getElementId();
 }

@@ -21,13 +21,47 @@ package org.apache.eagle.alert.policystate.deltaevent;
 
 import com.typesafe.config.Config;
 import org.apache.eagle.alert.policystate.snapshot.Snapshotable;
+import org.apache.eagle.alert.policystate.snapshot.StateSnapshotDAO;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * common featurs for persisting delta events
  * 1. daemon thread to kick off snapshot action
  */
 public abstract class AbstractDeltaEventPersister<Key, Value> implements DeltaEventPersister<Key, Value>{
-    public AbstractDeltaEventPersister(Config config, Snapshotable snapshotable){
+    private Config config;
+    private String applicationId;
+    private String executorId;
+    private Snapshotable snapshotable;
+    private StateSnapshotDAO stateDAO;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    public AbstractDeltaEventPersister(Config config, Snapshotable snapshotable, StateSnapshotDAO stateDAO){
+        this.config = config;
+        this.snapshotable = snapshotable;
+        // start up daemon thread to periodically take snapshot
+        long interval = config.getLong("eagle.executorState.snapshotIntervalMS");
+        scheduler.scheduleWithFixedDelay(new Snapshoter(this), 0L, interval, TimeUnit.MILLISECONDS);
+        // initialize StateSnapshotDAO
+        this.stateDAO = stateDAO;
+    }
+
+    private static class Snapshoter implements Runnable{
+        private AbstractDeltaEventPersister persister;
+        public Snapshoter(AbstractDeltaEventPersister persister){
+            this.persister = persister;
+        }
+        @Override
+        public void run() {
+            persister.takeSnapshot();
+        }
+    }
+
+    private void takeSnapshot(){
+        byte[] state = this.snapshotable.currentState();
+        stateDAO.write(applicationId, executorId, state);
     }
 }
