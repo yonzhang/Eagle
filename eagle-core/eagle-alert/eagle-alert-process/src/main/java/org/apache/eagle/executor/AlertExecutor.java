@@ -330,6 +330,8 @@ public class AlertExecutor extends JavaStormStreamExecutor2<String, AlertAPIEnti
     @Override
     public void restoreState(byte[] state) {
         Map<String, byte[]> map = (Map<String, byte[]>)ByteSerializer.BToO(state);
+        if(map == null)
+            return;
         for(String policyId : map.keySet()){
             PolicyEvaluator evaluator = policyEvaluators.get(policyId);
             if(evaluator != null && evaluator instanceof Snapshotable){

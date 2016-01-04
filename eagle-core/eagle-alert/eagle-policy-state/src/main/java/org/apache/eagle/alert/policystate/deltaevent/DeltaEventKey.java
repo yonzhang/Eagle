@@ -27,28 +27,37 @@ import java.io.Serializable;
  * a combination of fields which consists of the key a delta event
  */
 public class DeltaEventKey implements Serializable {
-    private String executorId;
-    private int partitionId;
+    private String site;
+    private String applicationId;
+    private String elementId;
 
-    public String getExecutorId() {
-        return executorId;
+    public String getSite() {
+        return site;
     }
 
-    public void setExecutorId(String executorId) {
-        this.executorId = executorId;
+    public void setSite(String site) {
+        this.site = site;
     }
 
-    public int getPartitionId(){
-        return partitionId;
+    public String getElementId() {
+        return elementId;
     }
 
-    public void setPartitionId(int partitionId){
-        this.partitionId = partitionId;
+    public void setElementId(String elementId) {
+        this.elementId = elementId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
     }
 
     @Override
     public int hashCode(){
-        return new HashCodeBuilder().append(executorId).append(partitionId).toHashCode();
+        return new HashCodeBuilder().append(site).append(applicationId).append(elementId).toHashCode();
     }
 
     @Override
@@ -58,8 +67,26 @@ public class DeltaEventKey implements Serializable {
         if(!(that instanceof DeltaEventKey))
             return false;
         DeltaEventKey thatKey = (DeltaEventKey)that;
-        if(thatKey.executorId.equals(this.executorId) && thatKey.partitionId == partitionId)
+        if(thatKey.applicationId.equals(this.applicationId) &&
+                thatKey.elementId.equals(this.elementId) &&
+                thatKey.site.equals(this.site))
             return true;
         return false;
+    }
+
+    /**
+     * serialize this object into output stream
+     * @param s
+     */
+    private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException{
+        s.writeUTF(site);
+        s.writeUTF(applicationId);
+        s.writeUTF(elementId);
+    }
+
+    private void readObject(final java.io.ObjectInputStream s) throws java.io.IOException{
+        site = s.readUTF();
+        applicationId = s.readUTF();
+        elementId = s.readUTF();
     }
 }

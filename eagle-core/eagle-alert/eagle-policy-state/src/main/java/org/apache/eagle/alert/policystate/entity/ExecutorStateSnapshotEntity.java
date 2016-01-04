@@ -19,6 +19,7 @@
 
 package org.apache.eagle.alert.policystate.entity;
 
+import org.apache.eagle.alert.policystate.ExecutorStateConstants;
 import org.apache.eagle.log.base.taggedlog.TaggedLogAPIEntity;
 import org.apache.eagle.log.entity.meta.*;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -26,17 +27,17 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * policy state snapshot is stored in eagle service as an entity
- * This can be extended to store state for any processing element in the topology
+ * This can be extended to writeState state for any processing element in the topology
  */
 @JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
 @Table("policyStateSnapshot")
 @ColumnFamily("f")
-@Prefix("alertStreamSchema")
-@Service(PolicyStateConstants.POLICY_STATE_SNAPSHOT_SERVICE_ENDPOINT_NAME)
+@Prefix("policyStateSnapshot")
+@Service(ExecutorStateConstants.POLICY_STATE_SNAPSHOT_SERVICE_ENDPOINT_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @TimeSeries(true)
-@Tags({"dataSource", "executorId"})
-public class PolicyStateSnapshotEntity extends TaggedLogAPIEntity {
+@Tags({"site", "applicationId", "executorId"})
+public class ExecutorStateSnapshotEntity extends TaggedLogAPIEntity {
     @Column("a")
     private byte[] state;
 

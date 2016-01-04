@@ -17,12 +17,20 @@
  *
  */
 
-package org.apache.eagle.alert.policystate.entity;
+package org.apache.eagle.alert.policystate;
 
 /**
  * constants for policy state management
  */
-public class PolicyStateConstants {
+public class ExecutorStateConstants {
     public final static String POLICY_STATE_SNAPSHOT_SERVICE_ENDPOINT_NAME = "PolicyStateSnapshotService";
     public final static String POLICY_STATE_DELTA_EVENT_ID_RANGE_SERVICE_ENDPOINT_NAME = "PolicyStateDeltaEventIDRangeService";
+
+    // zookeeper access constants
+    public final static String ZOOKEEPER_RETRY_TIMES_PROPERTY = "eagleProps.executorState.zookeeper.retry.times";
+    public final static int ZOOKEEPER_RETRY_TIMES_DEFAULT = 3;
+    public final static String ZOOKEEPER_RETRY_SLEEP_BETWEEN_RETRIES_PROPERTY = "eagleProps.executorState.zookeeper.sleepMsBetweenRetries";
+    public final static int ZOOKEEPER_RETRY_SLEEP_BETWEEN_RETRIES_DEFAULT = 2000;
+    public final static String ZOOKEEPER_ZKPATH_PROPERTY = "eagleProps.executorState.zookeeper.zkPath";
+    public final static String ZOOKEEPER_ZKPATH_DEFAULT = "/brokers";
 }

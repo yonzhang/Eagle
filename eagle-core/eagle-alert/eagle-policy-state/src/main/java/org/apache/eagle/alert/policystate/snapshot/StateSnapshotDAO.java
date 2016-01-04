@@ -19,10 +19,12 @@
 
 package org.apache.eagle.alert.policystate.snapshot;
 
+import java.io.IOException;
+
 /**
  * interface for common DAO operations
  */
 public interface StateSnapshotDAO {
-    void write(String applicationId, String executorId, byte[] state);
-    byte[] findState(String applicationId, String executorId);
+    void writeState(String site, String applicationId, String executorId, byte[] state) throws IOException;
+    byte[] findLatestState(String site, String applicationId, String executorId) throws IOException;
 }

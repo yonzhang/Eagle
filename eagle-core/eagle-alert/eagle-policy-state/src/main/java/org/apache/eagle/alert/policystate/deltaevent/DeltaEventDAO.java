@@ -17,14 +17,22 @@
  *
  */
 
-package org.apache.eagle.alert.policystate.deltaeventid;
+package org.apache.eagle.alert.policystate.deltaevent;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * persist/read earliest delta event id since latest snapshot
+ * interface for persisting delta events which can be used for replaying events based on latest snapshot while doing failover
  */
-public interface DeltaEventIdRangeDAO {
-    void write(String site, String applicationId, String executorId, long id) throws IOException;
-    long findLatestId(String site, String applicationId, String executorId) throws IOException;
+public interface DeltaEventDAO extends Closeable{
+    /**
+     * writeState event and return id which represents that event,
+     * the return id will be used for replaying
+     * @return
+     * @throws Exception
+     */
+    long write(Object event) throws Exception;
+
+    void load(long startOffset, DeltaEventReplayCallback callback) throws Exception;
 }

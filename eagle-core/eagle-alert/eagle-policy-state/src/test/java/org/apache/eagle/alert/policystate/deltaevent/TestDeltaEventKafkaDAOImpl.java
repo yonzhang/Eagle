@@ -17,14 +17,28 @@
  *
  */
 
-package org.apache.eagle.alert.policystate.deltaeventid;
+package org.apache.eagle.alert.policystate.deltaevent;
 
-import java.io.IOException;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.junit.Test;
+
+import java.util.Properties;
 
 /**
- * persist/read earliest delta event id since latest snapshot
+ * test kafka implementation of delta event DAO
  */
-public interface DeltaEventIdRangeDAO {
-    void write(String site, String applicationId, String executorId, long id) throws IOException;
-    long findLatestId(String site, String applicationId, String executorId) throws IOException;
+public class TestDeltaEventKafkaDAOImpl {
+    @Test
+    public void testWriteRead() throws Exception{
+        Config config = ConfigFactory.load();
+        DeltaEventDAO deltaEventDAO = new DeltaEventKafkaDAOImpl(config, "executorId1_0");
+        long lastOffset = deltaEventDAO.write("abc");
+        deltaEventDAO.load(lastOffset, new DeltaEventReplayCallback() {
+            @Override
+            public void replay(Object event) {
+                System.out.println(event);
+            }
+        });
+    }
 }

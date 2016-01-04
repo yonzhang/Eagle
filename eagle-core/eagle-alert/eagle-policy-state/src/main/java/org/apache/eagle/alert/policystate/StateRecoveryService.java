@@ -1,0 +1,94 @@
+/*
+ *
+ *  * Licensed to the Apache Software Foundation (ASF) under one or more
+ *  * contributor license agreements.  See the NOTICE file distributed with
+ *  * this work for additional information regarding copyright ownership.
+ *  * The ASF licenses this file to You under the Apache License, Version 2.0
+ *  * (the "License"); you may not use this file except in compliance with
+ *  * the License.  You may obtain a copy of the License at
+ *  *
+ *  *    http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package org.apache.eagle.alert.policystate;
+
+import com.typesafe.config.Config;
+import org.apache.eagle.alert.policystate.deltaevent.DeltaEventDAO;
+import org.apache.eagle.alert.policystate.deltaevent.DeltaEventReplayCallback;
+import org.apache.eagle.alert.policystate.deltaeventid.DeltaEventIdRangeDAO;
+import org.apache.eagle.alert.policystate.snapshot.Snapshotable;
+import org.apache.eagle.alert.policystate.snapshot.StateSnapshotDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * State recovery includes two steps
+ * 1. apply latest snapshot
+ * 2. apply all events since latest snapshot
+ */
+public class StateRecoveryService {
+    private final static Logger LOG = LoggerFactory.getLogger(StateRecoveryService.class);
+
+    private Config config;
+    private Snapshotable snapshotable;
+    private StateSnapshotDAO stateSnapshotDAO;
+    private DeltaEventDAO deltaEventDAO;
+    private DeltaEventIdRangeDAO deltaEventIdRangeDAO;
+    private DeltaEventReplayCallback callback;
+    public StateRecoveryService(Config config,
+                                Snapshotable snapshotable,
+                                StateSnapshotDAO stateSnapshotDAO,
+                                DeltaEventDAO deltaEventDAO,
+                                DeltaEventIdRangeDAO deltaEventIdRangeDAO,
+                                DeltaEventReplayCallback callback){
+        this.config = config;
+        this.snapshotable = snapshotable;
+        this.stateSnapshotDAO = stateSnapshotDAO;
+        this.deltaEventDAO = deltaEventDAO;
+        this.deltaEventIdRangeDAO = deltaEventIdRangeDAO;
+        this.callback = callback;
+    }
+
+    public void recover(){
+        String site = config.getString("eagleProps.site");
+        String applicationId = config.getString("eagleProps.dataSource");
+        String elementId = snapshotable.getElementId();
+        LOG.info("start recovering state for " + applicationId + "/" + elementId);
+        LOG.info("step 1, start restoring snapshot for " + applicationId + "/" + elementId);
+        // fetch state from DAO
+        byte[] snapshot = null;
+        try{
+            snapshot = stateSnapshotDAO.findLatestState(site, applicationId, elementId);
+        }catch(Exception ex){
+            LOG.error("error finding latest state snapshot, but continue to run", ex);
+            return;
+        }
+        snapshotable.restoreState(snapshot);
+        LOG.info("step 1, end restoring snapshot for " + applicationId + "/" + elementId);
+        // apply delta devents
+        LOG.info("step 2, start replaying delta events for " + applicationId + "/" + elementId);
+        // 1. get starting id
+        long startingOffset = 0l;
+        try{
+            startingOffset = deltaEventIdRangeDAO.findLatestId(site, applicationId, elementId);
+        }catch(Exception ex){
+            startingOffset = Long.MAX_VALUE;
+        }
+        // 2. get max offset right now
+        try {
+            deltaEventDAO.load(startingOffset, callback);
+        }catch(Exception ex){
+            LOG.error("fail loading deltaEvent starting offset, but continue to run", ex);
+        }
+
+        LOG.info("step 2, end replaying delta events for " + applicationId + "/" + elementId);
+        LOG.info("end recovering state for " + applicationId + "/" + elementId);
+    }
+}

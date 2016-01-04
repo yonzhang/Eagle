@@ -17,14 +17,28 @@
  *
  */
 
-package org.apache.eagle.alert.policystate.deltaeventid;
-
-import java.io.IOException;
+package org.apache.eagle.log.entity.meta;
 
 /**
- * persist/read earliest delta event id since latest snapshot
+ * serialize byte array which is stored like the following
  */
-public interface DeltaEventIdRangeDAO {
-    void write(String site, String applicationId, String executorId, long id) throws IOException;
-    long findLatestId(String site, String applicationId, String executorId) throws IOException;
+public class ByteArraySerDeser implements EntitySerDeser<byte[]>{
+    @Override
+    public byte[] deserialize(byte[] bytes) {
+        byte[] ret = new byte[bytes.length];
+        System.arraycopy(bytes, 0, ret, 0, bytes.length);
+        return ret;
+    }
+
+    @Override
+    public byte[] serialize(byte[] bytes) {
+        byte[] ret = new byte[bytes.length];
+        System.arraycopy(bytes, 0, ret, 0, bytes.length);
+        return ret;
+    }
+
+    @Override
+    public Class<byte[]> type() {
+        return byte[].class;
+    }
 }

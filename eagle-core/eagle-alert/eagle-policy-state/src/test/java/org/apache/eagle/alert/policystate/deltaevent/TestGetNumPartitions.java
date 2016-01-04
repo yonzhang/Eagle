@@ -17,19 +17,28 @@
  *
  */
 
-package org.apache.eagle.alert.policystate.deltaeventid;
+package org.apache.eagle.alert.policystate.deltaevent;
+
+import kafka.admin.AdminUtils;
+import kafka.api.TopicMetadata;
+import org.I0Itec.zkclient.ZkClient;
+import scala.collection.JavaConversions;
+import java.util.List;
+import java.util.Properties;
 
 /**
- * DAO methods backed by eagle service
+ * get number of partitions for a topic
  */
-public class DeltaEventIDRanageEagleServiceDAOImpl implements DeltaEventIDRangeDAO{
-    @Override
-    public void write(String applicationId, String executorId, long id) {
-
-    }
-
-    @Override
-    public long findLatestId(String applicationId, String executorId) {
-        return 0;
+public class TestGetNumPartitions {
+    public static void main(String[] args) throws Exception{
+        ZkClient zkClient = new ZkClient("localhost:2181");
+        try {
+            AdminUtils.createTopic(zkClient, "testTopic", 3, 1, new Properties());
+        }catch(Exception ex){
+            // continue to run
+        }
+        TopicMetadata metadata = AdminUtils.fetchTopicMetadataFromZk("testTopic", zkClient);
+        List partitions = scala.collection.JavaConversions.seqAsJavaList(metadata.partitionsMetadata());
+        System.out.println(partitions.size());
     }
 }

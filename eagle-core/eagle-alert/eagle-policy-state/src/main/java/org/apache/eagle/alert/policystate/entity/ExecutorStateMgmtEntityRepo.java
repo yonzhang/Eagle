@@ -17,14 +17,16 @@
  *
  */
 
-package org.apache.eagle.alert.policystate.deltaeventid;
+package org.apache.eagle.alert.policystate.entity;
 
-import java.io.IOException;
+import org.apache.eagle.log.entity.repo.EntityRepository;
 
 /**
- * persist/read earliest delta event id since latest snapshot
+ * repository to register executor state related entities
  */
-public interface DeltaEventIdRangeDAO {
-    void write(String site, String applicationId, String executorId, long id) throws IOException;
-    long findLatestId(String site, String applicationId, String executorId) throws IOException;
+public class ExecutorStateMgmtEntityRepo extends EntityRepository {
+    public ExecutorStateMgmtEntityRepo(){
+        entitySet.add(ExecutorStateSnapshotEntity.class);
+        entitySet.add(DeltaEventIdRangeEntity.class);
+    }
 }

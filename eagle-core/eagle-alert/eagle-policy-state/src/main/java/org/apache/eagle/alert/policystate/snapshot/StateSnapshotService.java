@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * service for periodically taking snapshots and persisting snapshots to durable storage
@@ -35,9 +36,10 @@ public class StateSnapshotService {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public StateSnapshotService(Config config, final Snapshotable snapshotable, final StateSnapshotDAO stateDAO, final Object snapshotLock){
+    public StateSnapshotService(Config config, final Snapshotable snapshotable, final StateSnapshotDAO stateDAO, final Object snapshotLock, final AtomicBoolean shouldPersist){
         // start up daemon thread to periodically take snapshot
         long interval = config.getLong("eagleProps.executorState.snapshotIntervalMS");
+        final String site = config.getString("eagleProps.site");
         final String applicationId = config.getString("eagleProps.dataSource");
         final String executorId = snapshotable.getElementId();
         scheduler.scheduleWithFixedDelay(new Runnable() {
@@ -45,8 +47,13 @@ public class StateSnapshotService {
             public void run() {
                 LOG.info("start taking state snapshot for " + applicationId + "/" + executorId);
                 synchronized (snapshotLock) {
-                    byte[] state = snapshotable.currentState();
-                    stateDAO.write(applicationId, executorId, state);
+                    try {
+                        byte[] state = snapshotable.currentState();
+                        stateDAO.writeState(site, applicationId, executorId, state);
+                        shouldPersist.set(true);
+                    }catch(Exception ex){
+                        LOG.error("fail writing state, but continue to run", ex);
+                    }
                 }
                 LOG.info("end taking state snapshot for " + applicationId + "/" + executorId);
             }

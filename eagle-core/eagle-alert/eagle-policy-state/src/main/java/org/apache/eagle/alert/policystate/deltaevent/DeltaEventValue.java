@@ -19,20 +19,40 @@
 
 package org.apache.eagle.alert.policystate.deltaevent;
 
-import java.io.Closeable;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
- * interface for persisting delta events which can be used for replaying events based on latest snapshot while doing failover
+ * wrapper class for delta event object which is provided by caller
  */
-public interface DeltaEventPersister<Key, Value> extends Closeable{
-    /**
-     * store event and return id which represents that event,
-     * the return id will be used for replaying
-     * @param key
-     * @param event
-     * @return
-     * @throws Exception
-     */
-    long store(Key key, Value event) throws Exception;
+public class DeltaEventValue implements Serializable {
+    private String elementId;
+    private Object event;
+
+    public String getElementId() {
+        return elementId;
+    }
+
+    public void setElementId(String elementId) {
+        this.elementId = elementId;
+    }
+
+    public Object getEvent() {
+        return event;
+    }
+
+    public void setEvent(Object event) {
+        this.event = event;
+    }
+
+    public void writeObject(ObjectOutputStream s) throws IOException {
+        s.writeUTF(elementId);
+        s.writeObject(event);
+    }
+    public void readObject(ObjectInputStream s) throws Exception {
+        elementId = s.readUTF();
+        event = s.readObject();
+    }
 }

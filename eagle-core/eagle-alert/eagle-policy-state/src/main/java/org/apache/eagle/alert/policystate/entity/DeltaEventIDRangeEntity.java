@@ -19,6 +19,7 @@
 
 package org.apache.eagle.alert.policystate.entity;
 
+import org.apache.eagle.alert.policystate.ExecutorStateConstants;
 import org.apache.eagle.log.base.taggedlog.TaggedLogAPIEntity;
 import org.apache.eagle.log.entity.meta.*;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -30,14 +31,14 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  * When events replay, each executor should filter the messages which belong to itself only
  */
 @JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
-@Table("policyStateSnapshot")
+@Table("deltaEventIdRange")
 @ColumnFamily("f")
-@Prefix("alertStreamSchema")
-@Service(PolicyStateConstants.POLICY_STATE_SNAPSHOT_SERVICE_ENDPOINT_NAME)
+@Prefix("deltaEventIdRange")
+@Service(ExecutorStateConstants.POLICY_STATE_DELTA_EVENT_ID_RANGE_SERVICE_ENDPOINT_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @TimeSeries(true)
-@Tags({"dataSource", "executorId"})
-public class DeltaEventIDRangeEntity extends TaggedLogAPIEntity {
+@Tags({"site", "dataSource", "executorId"})
+public class DeltaEventIdRangeEntity extends TaggedLogAPIEntity {
     @Column("a")
     private Long startingOffset;
 
