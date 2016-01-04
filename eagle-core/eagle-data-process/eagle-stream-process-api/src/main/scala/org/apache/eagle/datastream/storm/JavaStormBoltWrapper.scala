@@ -51,7 +51,7 @@ case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecuto
       _snaphostService =
         new StateSnapshotService(config, worker.asInstanceOf[Snapshotable], new StateSnapshotEagleServiceDAOImpl(config), _snapshotLock, _shouldPersistIdRange)
       _deltaEventDAO = new DeltaEventKafkaDAOImpl(config, worker.asInstanceOf[Snapshotable].getElementId)
-      _deltaEventIdRangeDAO = new DeltaEventIdRangeEagleServiceDAOImpl();
+      _deltaEventIdRangeDAO = new DeltaEventIdRangeEagleServiceDAOImpl(config);
       // recover state from remote storage. state recovery only happens when this bolt is started
       var recoverySvc = new StateRecoveryService(config,
             worker.asInstanceOf[Snapshotable],
@@ -97,7 +97,7 @@ case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecuto
   private def dispatchToDeltaEventPersist(input: Tuple) : Unit = {
     var offset = _deltaEventDAO.write(input.getValues);
     if(_shouldPersistIdRange.get()){
-      _deltaEventIdRangeDAO.write(null, null, offset)
+      _deltaEventIdRangeDAO.write(null, null, null, offset)
       // flip this flat
       _shouldPersistIdRange.set(false)
     }
