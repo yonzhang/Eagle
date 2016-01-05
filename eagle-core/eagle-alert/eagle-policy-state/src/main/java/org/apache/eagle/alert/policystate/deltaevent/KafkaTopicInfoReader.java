@@ -32,6 +32,7 @@ import java.util.List;
 /**
  * read topic information through zookeeper client library
  */
+@Deprecated
 public class KafkaTopicInfoReader {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaTopicInfoReader.class);
 

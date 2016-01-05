@@ -29,12 +29,12 @@ public class TestReadKafkaWithOffsetRange {
         int port = 6667;
         String topic = "executorStateTopic_sandbox_eventSource";
         int partition = 1;
-        KafkaReadWithOffsetRange test = new KafkaReadWithOffsetRange(Collections.singletonList("localhost"), port, topic, partition, new DeltaEventReplayCallback() {
+        KafkaReadWithOffsetRange test = new KafkaReadWithOffsetRange(Collections.singletonList("localhost"), port, topic, partition, new DeltaEventValueDeserializer());
+        test.readUntilMaxOffset(3, new DeltaEventReplayCallback() {
             @Override
             public void replay(Object event) {
                 System.out.println(event);
             }
-        }, new DeltaEventValueDeserializer());
-        test.readUntilMaxOffset(3);
+        });
     }
 }

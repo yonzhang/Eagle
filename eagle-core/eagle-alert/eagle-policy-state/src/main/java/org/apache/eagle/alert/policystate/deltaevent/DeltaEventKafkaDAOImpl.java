@@ -20,6 +20,7 @@
 package org.apache.eagle.alert.policystate.deltaevent;
 
 import com.typesafe.config.Config;
+import kafka.javaapi.TopicMetadata;
 import org.apache.eagle.alert.policystate.ExecutorStateConstants;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -61,17 +63,10 @@ public class DeltaEventKafkaDAOImpl implements DeltaEventDAO {
         producer = new KafkaProducer(producerConfigs);
 
         // fetch number of partitions
-        String zkPath = ExecutorStateConstants.ZOOKEEPER_ZKPATH_DEFAULT;
-        try{
-            zkPath = config.getString(ExecutorStateConstants.ZOOKEEPER_ZKPATH_PROPERTY);
-        }catch(Exception ex){
-            // do nothing
-            LOG.warn(ExecutorStateConstants.ZOOKEEPER_ZKPATH_PROPERTY + "is not set");
-        }
-        String zkConnection = config.getString("eagleProps.executorState.zkClientConnection");
-        KafkaTopicInfoReader reader = new KafkaTopicInfoReader(config, zkConnection, zkPath, topic);
-        int numPartitions = reader.getNumPartitions();
-        reader.close();
+        List<String> brokerList = Arrays.asList(config.getString("eagleProps.executorState.brokerList").split(","));
+        int brokerPort = config.getInt("eagleProps.executorState.brokerPort");
+        TopicMetadata topicMetadata = KafkaMetadataUtils.metadataForTopic(brokerList, brokerPort, "eagleExecutorState_leaderLookup", topic);
+        int numPartitions = topicMetadata.partitionsMetadata().size();
         DeltaEventKey key = new DeltaEventKey();
         key.setSite(site);
         key.setElementId(elementId);
@@ -79,11 +74,10 @@ public class DeltaEventKafkaDAOImpl implements DeltaEventDAO {
         partitionNum = Math.abs(key.hashCode()) % numPartitions;
 
         // initialize kafka reader
-        String brokerList = config.getString("eagleProps.executorState.kafkaBrokerList");
         String deserializerCls = config.getString("eagleProps.executorState.deltaEventKafkaConsumerConfig.valueDeserializer");
         try {
-            offsetReader = new KafkaReadWithOffsetRange(Arrays.asList(brokerList.split(",")),
-                    config.getInt("eagleProps.executorState.kafkaBrokerPort"),
+            offsetReader = new KafkaReadWithOffsetRange(brokerList,
+                    brokerPort,
                     topic,
                     partitionNum,
                     (Deserializer)Class.forName(deserializerCls).newInstance()

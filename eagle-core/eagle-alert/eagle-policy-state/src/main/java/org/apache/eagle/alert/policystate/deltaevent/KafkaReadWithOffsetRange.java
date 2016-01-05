@@ -124,32 +124,7 @@ public class KafkaReadWithOffsetRange {
     }
 
     private PartitionMetadata findLeader(List<String> replicaBrokers) {
-        PartitionMetadata returnMetaData = null;
-        loop:
-        for (String seed : replicaBrokers) {
-            SimpleConsumer consumer = null;
-            try {
-                consumer = new SimpleConsumer(seed, port, 100000, 64 * 1024, "eagleExecutorState_leaderLookup");
-                List<String> topics = Collections.singletonList(topic);
-                TopicMetadataRequest req = new TopicMetadataRequest(topics);
-                kafka.javaapi.TopicMetadataResponse resp = consumer.send(req);
-
-                List<TopicMetadata> metaData = resp.topicsMetadata();
-                for (TopicMetadata item : metaData) {
-                    for (PartitionMetadata part : item.partitionsMetadata()) {
-                        if (part.partitionId() == partition) {
-                            returnMetaData = part;
-                            break loop;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                LOG.error("Error communicating with Broker [" + seed + "] to find Leader for [" + topic
-                        + ", " + partition + "] Reason: " + e);
-            } finally {
-                if (consumer != null) consumer.close();
-            }
-        }
+        PartitionMetadata returnMetaData = KafkaMetadataUtils.metadataForPartition(replicaBrokers, port, "eagleExecutorState_leaderLookup", topic, partition);
         if (returnMetaData != null) {
             m_replicaBrokers.clear();
             for (kafka.cluster.Broker replica : returnMetaData.replicas()) {
