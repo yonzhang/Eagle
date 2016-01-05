@@ -33,6 +33,8 @@ import org.apache.eagle.datastream.JavaStormStreamExecutor;
 import org.apache.eagle.executor.AlertExecutor;
 import org.apache.eagle.service.client.EagleServiceConnector;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -40,8 +42,9 @@ import java.util.*;
  * test JavaStormBoltWrapper
  */
 public class TestJavaStormBoltWrapper {
-    @Test
-    public void testSnapshotService() throws Exception{
+    private static final Logger LOG = LoggerFactory.getLogger(TestJavaStormBoltWrapper.class);
+
+    public static void main(String[] args) throws Exception{
         Config config = ConfigFactory.load();
         EagleServiceConnector connector = new EagleServiceConnector(config);
         String streamName = "eventStream";
@@ -52,18 +55,19 @@ public class TestJavaStormBoltWrapper {
         executor.prepareConfig(config);
         JavaStormBoltWrapper bolt = new JavaStormBoltWrapper(config, (JavaStormStreamExecutor)executor);
         bolt.prepare(null, null, getOutputCollector());
+        TreeMap map = new TreeMap();
+        map.put("name", "xyzzzz");
+        map.put("value", 100);
+        map.put("timestamp", 14786203663L);
         while(true) {
-            Tuple tuple = getTuple("key1", streamName, new TreeMap(){{
-                put("name", "xyzzzz");
-                put("value", 100);
-                put("timestamp", 14786203663L);
-            }});
+            LOG.info("sending message ...");
+            Tuple tuple = new TestTuple("key1", streamName, map);
             bolt.execute(tuple);
-            Thread.sleep(100);
+            Thread.sleep(1000);
         }
     }
 
-    private OutputCollector getOutputCollector(){
+    private static OutputCollector getOutputCollector(){
         return new OutputCollector(new IOutputCollector(){
             @Override
             public List<Integer> emit(String streamId, Collection<Tuple> anchors, List<Object> tuple) {
@@ -84,157 +88,163 @@ public class TestJavaStormBoltWrapper {
         });
     }
 
-    private Tuple getTuple(final String key, final String streamName, final SortedMap map){
-        return new Tuple() {
-            @Override
-            public GlobalStreamId getSourceGlobalStreamid() {
-                return null;
-            }
-            @Override
-            public String getSourceComponent() {
-                return null;
-            }
-            @Override
-            public int getSourceTask() {
-                return 0;
-            }
-            @Override
-            public String getSourceStreamId() {
-                return null;
-            }
-            @Override
-            public MessageId getMessageId() {
-                return null;
-            }
-            @Override
-            public int size() {
-                return 0;
-            }
-            @Override
-            public boolean contains(String field) {
-                return false;
-            }
-            @Override
-            public Fields getFields() {
-                return null;
-            }
-            @Override
-            public int fieldIndex(String field) {
-                return 0;
-            }
-            @Override
-            public List<Object> select(Fields selector) {
-                return null;
-            }
+    private static class TestTuple implements Tuple{
+        private String key;
+        private String streamName;
+        private SortedMap map;
+        public TestTuple(final String key, final String streamName, final SortedMap map){
+            this.key = key;
+            this.streamName = streamName;
+            this.map = map;
+        }
+        @Override
+        public GlobalStreamId getSourceGlobalStreamid() {
+            return null;
+        }
+        @Override
+        public String getSourceComponent() {
+            return null;
+        }
+        @Override
+        public int getSourceTask() {
+            return 0;
+        }
+        @Override
+        public String getSourceStreamId() {
+            return null;
+        }
+        @Override
+        public MessageId getMessageId() {
+            return null;
+        }
+        @Override
+        public int size() {
+            return 0;
+        }
+        @Override
+        public boolean contains(String field) {
+            return false;
+        }
+        @Override
+        public Fields getFields() {
+            return null;
+        }
+        @Override
+        public int fieldIndex(String field) {
+            return 0;
+        }
+        @Override
+        public List<Object> select(Fields selector) {
+            return null;
+        }
 
-            @Override
-            public Object getValue(int i) {
-                return null;
-            }
+        @Override
+        public Object getValue(int i) {
+            return null;
+        }
 
-            @Override
-            public String getString(int i) {
-                return null;
-            }
+        @Override
+        public String getString(int i) {
+            return null;
+        }
 
-            @Override
-            public Integer getInteger(int i) {
-                return null;
-            }
+        @Override
+        public Integer getInteger(int i) {
+            return null;
+        }
 
-            @Override
-            public Long getLong(int i) {
-                return null;
-            }
+        @Override
+        public Long getLong(int i) {
+            return null;
+        }
 
-            @Override
-            public Boolean getBoolean(int i) {
-                return null;
-            }
+        @Override
+        public Boolean getBoolean(int i) {
+            return null;
+        }
 
-            @Override
-            public Short getShort(int i) {
-                return null;
-            }
+        @Override
+        public Short getShort(int i) {
+            return null;
+        }
 
-            @Override
-            public Byte getByte(int i) {
-                return null;
-            }
+        @Override
+        public Byte getByte(int i) {
+            return null;
+        }
 
-            @Override
-            public Double getDouble(int i) {
-                return null;
-            }
+        @Override
+        public Double getDouble(int i) {
+            return null;
+        }
 
-            @Override
-            public Float getFloat(int i) {
-                return null;
-            }
+        @Override
+        public Float getFloat(int i) {
+            return null;
+        }
 
-            @Override
-            public byte[] getBinary(int i) {
-                return new byte[0];
-            }
+        @Override
+        public byte[] getBinary(int i) {
+            return new byte[0];
+        }
 
-            @Override
-            public Object getValueByField(String field) {
-                return null;
-            }
+        @Override
+        public Object getValueByField(String field) {
+            return null;
+        }
 
-            @Override
-            public String getStringByField(String field) {
-                return null;
-            }
+        @Override
+        public String getStringByField(String field) {
+            return null;
+        }
 
-            @Override
-            public Integer getIntegerByField(String field) {
-                return null;
-            }
+        @Override
+        public Integer getIntegerByField(String field) {
+            return null;
+        }
 
-            @Override
-            public Long getLongByField(String field) {
-                return null;
-            }
+        @Override
+        public Long getLongByField(String field) {
+            return null;
+        }
 
-            @Override
-            public Boolean getBooleanByField(String field) {
-                return null;
-            }
+        @Override
+        public Boolean getBooleanByField(String field) {
+            return null;
+        }
 
-            @Override
-            public Short getShortByField(String field) {
-                return null;
-            }
+        @Override
+        public Short getShortByField(String field) {
+            return null;
+        }
 
-            @Override
-            public Byte getByteByField(String field) {
-                return null;
-            }
+        @Override
+        public Byte getByteByField(String field) {
+            return null;
+        }
 
-            @Override
-            public Double getDoubleByField(String field) {
-                return null;
-            }
+        @Override
+        public Double getDoubleByField(String field) {
+            return null;
+        }
 
-            @Override
-            public Float getFloatByField(String field) {
-                return null;
-            }
+        @Override
+        public Float getFloatByField(String field) {
+            return null;
+        }
 
-            @Override
-            public byte[] getBinaryByField(String field) {
-                return new byte[0];
-            }
+        @Override
+        public byte[] getBinaryByField(String field) {
+            return new byte[0];
+        }
 
-            @Override
-            public List<Object> getValues() {
-                List<Object> ret = new ArrayList<Object>();
-                ret.add(key);
-                ret.add(streamName);
-                ret.add(map);
-                return ret;
-            }
-        };
+        @Override
+        public List<Object> getValues() {
+            List<Object> ret = new ArrayList<Object>();
+            ret.add(key);
+            ret.add(streamName);
+            ret.add(map);
+            return ret;
+        }
     }
 }

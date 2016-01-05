@@ -56,6 +56,7 @@ public class KafkaReadWithOffsetRange {
         this.msgDeserializer = msgDeserializer;
     }
     public void readUntilMaxOffset(long startOffset, DeltaEventReplayCallback callback) throws Exception{
+        LOG.info("reading kafka message from offset " + startOffset + " for topic " + topic + ", partition " + partition);
         String clientName = "eagleExecutorState_" + topic + "_" + partition;
         PartitionMetadata metadata = findLeader(seedBrokers);
         if (metadata == null) {
@@ -73,6 +74,8 @@ public class KafkaReadWithOffsetRange {
     }
 
     private void internalRead(SimpleConsumer consumer, String leadBroker, String clientName, DeltaEventReplayCallback callback, long startOffset, long maxOffset) throws Exception{
+        long totalReplayed = 0L;
+        long failedReplayed = 0L;
         int numErrors = 0;
         boolean finished = false;
         while (!finished) {
@@ -89,7 +92,7 @@ public class KafkaReadWithOffsetRange {
             if (fetchResponse.hasError()) {
                 numErrors++;
                 short code = fetchResponse.errorCode(topic, partition);
-                System.out.println("Error fetching data from the Broker:" + leadBroker + " Reason: " + code);
+                LOG.error("Error fetching data from the Broker:" + leadBroker + " Reason: " + code);
                 if (numErrors > 5) break;
                 if (code == ErrorMapping.OffsetOutOfRangeCode())  {
                     String errMsg = "try to read offset which is out of range";
@@ -112,14 +115,24 @@ public class KafkaReadWithOffsetRange {
                 ByteBuffer payload = messageAndOffset.message().payload();
                 byte[] bytes = new byte[payload.limit()];
                 payload.get(bytes);
-                Object event = msgDeserializer.deserialize(topic, bytes);
-                callback.replay(event);
+                DeltaEventValue event = null;
+                try {
+                    event = (DeltaEventValue)msgDeserializer.deserialize(topic, bytes);
+                }catch(Exception ex){
+                    failedReplayed++;
+                    LOG.error("deserialization error, ignore this event");
+                }
+                totalReplayed++;
+                if(event != null) {
+                    callback.replay(event.getEvent());
+                }
                 if(currentOffset >= maxOffset-1){
                     finished = true;
                     break;
                 }
             }
         }
+        LOG.info("total replayed events " + totalReplayed, ", failedReplayed " + failedReplayed);
         if (consumer != null) consumer.close();
     }
 

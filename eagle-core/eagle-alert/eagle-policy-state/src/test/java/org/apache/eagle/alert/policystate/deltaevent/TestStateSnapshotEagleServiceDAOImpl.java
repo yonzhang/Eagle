@@ -40,7 +40,7 @@ public class TestStateSnapshotEagleServiceDAOImpl {
         StateSnapshotDAO dao = new StateSnapshotEagleServiceDAOImpl(config);
         String stateString = "This is state snapshot";
         dao.writeState("site1", "applicationId1", "executorId1", stateString.getBytes("UTF-8"));
-        byte[] state = dao.findLatestState("site1", "applicationId1", "executorId1");
+        byte[] state = dao.findLatestState("site1", "applicationId1", "executorId1").getState();
         String recoveredStateString = new String(state, "UTF-8");
         Assert.assertEquals(stateString, recoveredStateString);
     }

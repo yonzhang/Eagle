@@ -24,8 +24,6 @@ import com.typesafe.config.ConfigFactory;
 import junit.framework.Assert;
 import org.apache.eagle.alert.policystate.deltaeventid.DeltaEventIdRangeDAO;
 import org.apache.eagle.alert.policystate.deltaeventid.DeltaEventIdRangeEagleServiceDAOImpl;
-import org.apache.eagle.alert.policystate.snapshot.StateSnapshotDAO;
-import org.apache.eagle.alert.policystate.snapshot.StateSnapshotEagleServiceDAOImpl;
 import org.junit.Test;
 
 /**
@@ -39,10 +37,10 @@ public class TestDeltaEventIdRangeEagleServiceDAOImpl {
         System.setProperty("eagleProps.eagleService.username", "admin");
         System.setProperty("eagleProps.eagleService.password", "secret");
         Config config = ConfigFactory.load();
-        DeltaEventIdRangeDAO dao = new DeltaEventIdRangeEagleServiceDAOImpl(config);
+        DeltaEventIdRangeDAO dao = new DeltaEventIdRangeEagleServiceDAOImpl(config, "executorId1");
         long offset = 101;
-        dao.write("site1", "applicationId1", "executorId1", offset);
-        long retOffset = dao.findLatestId("site1", "applicationId1", "executorId1");
+        dao.write(offset);
+        long retOffset = dao.findLatestIdRange().getStartingOffset();
         Assert.assertEquals(offset, retOffset);
     }
 }

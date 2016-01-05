@@ -32,9 +32,13 @@ public class TestDeltaEventKafkaDAOImpl {
     @Test
     public void testWriteRead() throws Exception{
         Config config = ConfigFactory.load();
-        DeltaEventDAO deltaEventDAO = new DeltaEventKafkaDAOImpl(config, "executorId1_0");
-        long lastOffset = deltaEventDAO.write("abcefg");
-        deltaEventDAO.load(lastOffset, new DeltaEventReplayCallback() {
+        String elementId = "executorId1_1";
+        DeltaEventDAO deltaEventDAO = new DeltaEventKafkaDAOImpl(config, elementId);
+        long startOffset = deltaEventDAO.write("abcefg1");
+        deltaEventDAO.write("abcefg2");
+        deltaEventDAO.write("abcefg3");
+        deltaEventDAO.write("abcefg4");
+        deltaEventDAO.load(startOffset, new DeltaEventReplayCallback() {
             @Override
             public void replay(Object event) {
                 System.out.println(event);

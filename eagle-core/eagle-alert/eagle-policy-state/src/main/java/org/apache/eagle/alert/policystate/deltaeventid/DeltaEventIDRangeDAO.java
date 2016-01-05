@@ -19,12 +19,14 @@
 
 package org.apache.eagle.alert.policystate.deltaeventid;
 
+import org.apache.eagle.alert.policystate.entity.DeltaEventIdRangeEntity;
+
 import java.io.IOException;
 
 /**
  * persist/read earliest delta event id since latest snapshot
  */
 public interface DeltaEventIdRangeDAO {
-    void write(String site, String applicationId, String executorId, long id) throws IOException;
-    long findLatestId(String site, String applicationId, String executorId) throws IOException;
+    void write(long id) throws IOException;
+    DeltaEventIdRangeEntity findLatestIdRange() throws IOException;
 }

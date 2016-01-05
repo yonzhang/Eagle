@@ -47,7 +47,8 @@ public class DeltaEventValueDeserializer implements Deserializer<DeltaEventValue
             in = new ObjectInputStream(bis);
             ret = (DeltaEventValue)in.readObject();
         }catch(Exception ex){
-            LOG.error("error serializing object", ex);
+            LOG.error("error deserializing object, ignore this event", ex);
+            throw new RuntimeException(ex);
         }finally{
             try {
                 bis.close();

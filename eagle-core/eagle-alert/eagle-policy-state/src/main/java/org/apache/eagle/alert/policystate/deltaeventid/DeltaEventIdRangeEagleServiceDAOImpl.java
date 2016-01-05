@@ -41,20 +41,27 @@ import java.util.List;
 public class DeltaEventIdRangeEagleServiceDAOImpl implements DeltaEventIdRangeDAO {
     private final static Logger LOG = LoggerFactory.getLogger(DeltaEventIdRangeEagleServiceDAOImpl.class);
     private Config config;
+    private String site;
+    private String applicationId;
+    private String elementId;
 
-    public DeltaEventIdRangeEagleServiceDAOImpl(Config config){
+    public DeltaEventIdRangeEagleServiceDAOImpl(Config config, String elementId){
         this.config = config;
+        this.site = config.getString("eagleProps.site");
+        this.applicationId = config.getString("eagleProps.dataSource");
+        this.elementId = elementId;
     }
 
     @Override
-    public void write(final String site, final String applicationId, final String executorId, long id) throws IOException{
-        LOG.info("write offset: " + applicationId + "/" + executorId + ", with offset " + id);
+    public void write(long id) throws IOException{
+        LOG.info(applicationId + "/" + elementId + ", write first offset after latest snapshot " + id);
         DeltaEventIdRangeEntity entity = new DeltaEventIdRangeEntity();
         entity.setTags(new HashMap<String, String>(){{
             put("site", site);
             put("applicationId", applicationId);
-            put("executorId", executorId);
+            put("executorId", elementId);
         }});
+        entity.setTimestamp(new Date().getTime());
         entity.setStartingOffset(id);
         IEagleServiceClient client = new EagleServiceClientImpl(new EagleServiceConnector(config));
         GenericServiceAPIResponseEntity response = null;
@@ -69,15 +76,15 @@ public class DeltaEventIdRangeEagleServiceDAOImpl implements DeltaEventIdRangeDA
             throw new IOException(response.getException());
         }
         client.close();
-        LOG.info("end write offset: " + applicationId + "/" + executorId);
+        LOG.info("end write offset: " + applicationId + "/" + elementId);
     }
 
     @Override
-    public long findLatestId(String site, String applicationId, String executorId) throws IOException {
+    public DeltaEventIdRangeEntity findLatestIdRange() throws IOException {
         IEagleServiceClient client = new EagleServiceClientImpl(new EagleServiceConnector(config));
         String query = ExecutorStateConstants.POLICY_STATE_DELTA_EVENT_ID_RANGE_SERVICE_ENDPOINT_NAME + "[@applicationId=\"" + applicationId +
                 "\" AND @site=\"" + site +
-                "\" AND @executorId=\"" + executorId +
+                "\" AND @executorId=\"" + elementId +
                 "\"]{*}";
         GenericServiceAPIResponseEntity<DeltaEventIdRangeEntity> response = null;
         try {
@@ -97,8 +104,8 @@ public class DeltaEventIdRangeEagleServiceDAOImpl implements DeltaEventIdRangeDA
         }
         List<DeltaEventIdRangeEntity> entities = response.getObj();
         if(entities.size() >= 1){
-            return entities.get(0).getStartingOffset();
+            return entities.get(0);
         }
-        return Long.MAX_VALUE; // in this case, recovering will be ignored
+        return null;
     }
 }

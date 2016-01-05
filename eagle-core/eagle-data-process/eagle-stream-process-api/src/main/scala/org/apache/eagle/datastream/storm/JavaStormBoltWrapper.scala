@@ -48,23 +48,24 @@ case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecuto
     worker.init
     if(worker.isInstanceOf[Snapshotable]) {
       _snapshotLock = new Object
-      _snaphostService =
-        new StateSnapshotService(config, worker.asInstanceOf[Snapshotable], new StateSnapshotEagleServiceDAOImpl(config), _snapshotLock, _shouldPersistIdRange)
       _deltaEventDAO = new DeltaEventKafkaDAOImpl(config, worker.asInstanceOf[Snapshotable].getElementId)
-      _deltaEventIdRangeDAO = new DeltaEventIdRangeEagleServiceDAOImpl(config);
+      _deltaEventIdRangeDAO = new DeltaEventIdRangeEagleServiceDAOImpl(config, worker.asInstanceOf[Snapshotable].getElementId);
       // recover state from remote storage. state recovery only happens when this bolt is started
       var recoverySvc = new StateRecoveryService(config,
             worker.asInstanceOf[Snapshotable],
-            new StateSnapshotEagleServiceDAOImpl(config),
+      new StateSnapshotEagleServiceDAOImpl(config),
             _deltaEventDAO,
             _deltaEventIdRangeDAO,
-            new DeltaEventReplayCallback {
-              override def replay(event: scala.Any): Unit = {
-                dispatchToFlatmap(event.asInstanceOf[Tuple])
-              }
-            }
+      new DeltaEventReplayCallback {
+        override def replay(event: scala.Any): Unit = {
+          dispatchDeltaEventToFlatmap(event.asInstanceOf[java.util.List[AnyRef]])
+        }
+      }
       );
       recoverySvc.recover();
+      // make sure snapshot only works after recover is done
+      _snaphostService =
+        new StateSnapshotService(config, worker.asInstanceOf[Snapshotable], new StateSnapshotEagleServiceDAOImpl(config), _snapshotLock, _shouldPersistIdRange)
     }
   }
 
@@ -94,10 +95,22 @@ case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecuto
     })
   }
 
+  /**
+   * if that is replayed message, we don't need do ack so don't need anchor either
+   * @param input
+   */
+  private def dispatchDeltaEventToFlatmap(input : java.util.List[AnyRef]) : Unit = {
+    worker.flatMap(input, new Collector[EagleTuple]() {
+      def collect(t: EagleTuple): Unit = {
+        _collector.emit(t.getList.asJava)
+      }
+    })
+  }
+
   private def dispatchToDeltaEventPersist(input: Tuple) : Unit = {
     var offset = _deltaEventDAO.write(input.getValues);
     if(_shouldPersistIdRange.get()){
-      _deltaEventIdRangeDAO.write(null, null, null, offset)
+      _deltaEventIdRangeDAO.write(offset)
       // flip this flat
       _shouldPersistIdRange.set(false)
     }

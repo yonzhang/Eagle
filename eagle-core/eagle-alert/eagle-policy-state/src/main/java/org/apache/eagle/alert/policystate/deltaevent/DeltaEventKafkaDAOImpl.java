@@ -67,6 +67,7 @@ public class DeltaEventKafkaDAOImpl implements DeltaEventDAO {
         int brokerPort = config.getInt("eagleProps.executorState.brokerPort");
         TopicMetadata topicMetadata = KafkaMetadataUtils.metadataForTopic(brokerList, brokerPort, "eagleExecutorState_leaderLookup", topic);
         int numPartitions = topicMetadata.partitionsMetadata().size();
+        LOG.info("topic: " + topic + ", total number of partitions: " + numPartitions);
         DeltaEventKey key = new DeltaEventKey();
         key.setSite(site);
         key.setElementId(elementId);

@@ -19,6 +19,8 @@
 
 package org.apache.eagle.alert.policystate.snapshot;
 
+import org.apache.eagle.alert.policystate.entity.ExecutorStateSnapshotEntity;
+
 import java.io.IOException;
 
 /**
@@ -26,5 +28,5 @@ import java.io.IOException;
  */
 public interface StateSnapshotDAO {
     void writeState(String site, String applicationId, String executorId, byte[] state) throws IOException;
-    byte[] findLatestState(String site, String applicationId, String executorId) throws IOException;
+    ExecutorStateSnapshotEntity findLatestState(String site, String applicationId, String executorId) throws IOException;
 }

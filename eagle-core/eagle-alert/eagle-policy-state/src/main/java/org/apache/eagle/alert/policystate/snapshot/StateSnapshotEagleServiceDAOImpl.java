@@ -51,6 +51,7 @@ public class StateSnapshotEagleServiceDAOImpl implements StateSnapshotDAO{
             put("applicationId", applicationId);
             put("executorId", executorId);
         }});
+        entity.setTimestamp(new Date().getTime());
         entity.setState(state);
         IEagleServiceClient client = new EagleServiceClientImpl(new EagleServiceConnector(config));
         GenericServiceAPIResponseEntity response = null;
@@ -69,7 +70,7 @@ public class StateSnapshotEagleServiceDAOImpl implements StateSnapshotDAO{
     }
 
     @Override
-    public byte[] findLatestState(String site, String applicationId, String executorId) throws IOException{
+    public ExecutorStateSnapshotEntity findLatestState(String site, String applicationId, String executorId) throws IOException{
         IEagleServiceClient client = new EagleServiceClientImpl(new EagleServiceConnector(config));
         String query = ExecutorStateConstants.POLICY_STATE_SNAPSHOT_SERVICE_ENDPOINT_NAME + "[@applicationId=\"" + applicationId +
                 "\" AND @site=\"" + site +
@@ -93,7 +94,7 @@ public class StateSnapshotEagleServiceDAOImpl implements StateSnapshotDAO{
         }
         List<ExecutorStateSnapshotEntity> entities = response.getObj();
         if(entities.size() >= 1){
-            return entities.get(0).getState();
+            return entities.get(0);
         }
         return null;
     }

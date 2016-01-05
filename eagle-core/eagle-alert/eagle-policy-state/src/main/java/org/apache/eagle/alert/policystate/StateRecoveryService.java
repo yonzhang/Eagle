@@ -23,6 +23,8 @@ import com.typesafe.config.Config;
 import org.apache.eagle.alert.policystate.deltaevent.DeltaEventDAO;
 import org.apache.eagle.alert.policystate.deltaevent.DeltaEventReplayCallback;
 import org.apache.eagle.alert.policystate.deltaeventid.DeltaEventIdRangeDAO;
+import org.apache.eagle.alert.policystate.entity.DeltaEventIdRangeEntity;
+import org.apache.eagle.alert.policystate.entity.ExecutorStateSnapshotEntity;
 import org.apache.eagle.alert.policystate.snapshot.Snapshotable;
 import org.apache.eagle.alert.policystate.snapshot.StateSnapshotDAO;
 import org.slf4j.Logger;
@@ -61,34 +63,42 @@ public class StateRecoveryService {
         String applicationId = config.getString("eagleProps.dataSource");
         String elementId = snapshotable.getElementId();
         LOG.info("start recovering state for " + applicationId + "/" + elementId);
-        LOG.info("step 1, start restoring snapshot for " + applicationId + "/" + elementId);
+        LOG.info("step 1 of 2, start restoring snapshot for " + applicationId + "/" + elementId);
         // fetch state from DAO
-        byte[] snapshot = null;
+        ExecutorStateSnapshotEntity snapshotEntity = null;
         try{
-            snapshot = stateSnapshotDAO.findLatestState(site, applicationId, elementId);
+            snapshotEntity = stateSnapshotDAO.findLatestState(site, applicationId, elementId);
         }catch(Exception ex){
             LOG.error("error finding latest state snapshot, but continue to run", ex);
             return;
         }
+        byte[] snapshot = snapshotEntity.getState();
         snapshotable.restoreState(snapshot);
-        LOG.info("step 1, end restoring snapshot for " + applicationId + "/" + elementId);
+        LOG.info("step 1 of 2, end restoring snapshot for " + applicationId + "/" + elementId);
         // apply delta devents
-        LOG.info("step 2, start replaying delta events for " + applicationId + "/" + elementId);
+        LOG.info("step 2 of 2, start replaying delta events for " + applicationId + "/" + elementId);
         // 1. get starting id
-        long startingOffset = 0l;
+        DeltaEventIdRangeEntity idRangeEntity = null;
         try{
-            startingOffset = deltaEventIdRangeDAO.findLatestId(site, applicationId, elementId);
+            idRangeEntity = deltaEventIdRangeDAO.findLatestIdRange();
         }catch(Exception ex){
-            startingOffset = Long.MAX_VALUE;
+            LOG.error("fail reading deltaEventIdRange, use max value");
         }
-        // 2. get max offset right now
-        try {
-            deltaEventDAO.load(startingOffset, callback);
-        }catch(Exception ex){
-            LOG.error("fail loading deltaEvent starting offset, but continue to run", ex);
+        if(idRangeEntity == null){
+            LOG.warn("delta event is empty, so ignore event replay");
+        }else if(idRangeEntity.getTimestamp() < snapshotEntity.getTimestamp()){
+            LOG.warn("snapshot is newer than last recorded delta event, " + snapshotEntity.getTimestamp() + ">" + idRangeEntity.getTimestamp() + ", so ignore event replay");
+        }else {
+            long startingOffset = idRangeEntity.getStartingOffset();
+            LOG.info("recorded delta event startingOffset " + startingOffset);
+            // 2. get max offset right now
+            try {
+                deltaEventDAO.load(startingOffset, callback);
+            } catch (Exception ex) {
+                LOG.error("fail loading deltaEvent starting offset, but continue to run", ex);
+            }
         }
-
-        LOG.info("step 2, end replaying delta events for " + applicationId + "/" + elementId);
+        LOG.info("step 2 of 2, end replaying delta events for " + applicationId + "/" + elementId);
         LOG.info("end recovering state for " + applicationId + "/" + elementId);
     }
 }
