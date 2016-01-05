@@ -21,19 +21,15 @@ package org.apache.eagle.alert.policystate.deltaevent;
 
 import com.typesafe.config.Config;
 import org.apache.eagle.alert.policystate.ExecutorStateConstants;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -48,11 +44,11 @@ public class DeltaEventKafkaDAOImpl implements DeltaEventDAO {
     private static final Logger LOG = LoggerFactory.getLogger(DeltaEventKafkaDAOImpl.class);
     private String topic;
     private KafkaProducer producer;
-    private KafkaConsumer consumer;
     private int partitionNum;
     private String site;
     private String applicationId;
     private String elementId;
+    private KafkaReadWithOffsetRange offsetReader;
 
     public DeltaEventKafkaDAOImpl(Config config, String elementId){
         // create KafkaProducer
@@ -63,10 +59,6 @@ public class DeltaEventKafkaDAOImpl implements DeltaEventDAO {
         topic = topicBase + "_" + site + "_" + applicationId;
         Map producerConfigs = config.getObject("eagleProps.executorState.deltaEventKafkaProducerConfig").unwrapped();
         producer = new KafkaProducer(producerConfigs);
-
-        // create KafkaConsumer
-        Map consumerConfigs = config.getObject("eagleProps.executorState.deltaEventKafkaConsumerConfig").unwrapped();
-        consumer = new KafkaConsumer(consumerConfigs);
 
         // fetch number of partitions
         String zkPath = ExecutorStateConstants.ZOOKEEPER_ZKPATH_DEFAULT;
@@ -85,6 +77,21 @@ public class DeltaEventKafkaDAOImpl implements DeltaEventDAO {
         key.setElementId(elementId);
         key.setApplicationId(applicationId);
         partitionNum = Math.abs(key.hashCode()) % numPartitions;
+
+        // initialize kafka reader
+        String brokerList = config.getString("eagleProps.executorState.kafkaBrokerList");
+        String deserializerCls = config.getString("eagleProps.executorState.deltaEventKafkaConsumerConfig.valueDeserializer");
+        try {
+            offsetReader = new KafkaReadWithOffsetRange(Arrays.asList(brokerList.split(",")),
+                    config.getInt("eagleProps.executorState.kafkaBrokerPort"),
+                    topic,
+                    partitionNum,
+                    (Deserializer)Class.forName(deserializerCls).newInstance()
+            );
+        }catch(Exception ex){
+            LOG.error("fail creating kafka reader", ex);
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
@@ -102,25 +109,9 @@ public class DeltaEventKafkaDAOImpl implements DeltaEventDAO {
         return recordMetadata.offset();
     }
 
-    private long findCurrentMaxOffset(){
-        TopicPartition partition = new TopicPartition(topic, partitionNum);
-        Map<TopicPartition, Long> tps = consumer.offsetsBeforeTime(-2, Arrays.asList(partition));
-        return tps.get(partition);
-    }
-
     @Override
     public void load(long startOffset, DeltaEventReplayCallback callback) throws Exception{
-        long maxOffset = findCurrentMaxOffset();
-        boolean isRunning = true;
-        while(isRunning) {
-            Map<String, ConsumerRecords> records = consumer.poll(100);
-            List<ConsumerRecord> ret = records.get(topic).records();
-            long offset = ret.get(ret.size()-1).offset();
-            if(offset >= maxOffset)
-                isRunning = false;
-            else
-                isRunning = true;
-        }
+        offsetReader.readUntilMaxOffset(startOffset, callback);
     }
 
     @Override

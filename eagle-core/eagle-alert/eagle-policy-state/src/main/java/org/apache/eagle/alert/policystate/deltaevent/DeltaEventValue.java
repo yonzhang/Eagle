@@ -28,6 +28,7 @@ import java.io.Serializable;
  * wrapper class for delta event object which is provided by caller
  */
 public class DeltaEventValue implements Serializable {
+    private static final long serialVersionUID = -6947238996278788982L;
     private String elementId;
     private Object event;
 
@@ -54,5 +55,32 @@ public class DeltaEventValue implements Serializable {
     public void readObject(ObjectInputStream s) throws Exception {
         elementId = s.readUTF();
         event = s.readObject();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeltaEventValue that = (DeltaEventValue) o;
+
+        if (!elementId.equals(that.elementId)) return false;
+        return event.equals(that.event);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = elementId.hashCode();
+        result = 31 * result + event.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "DeltaEventValue{" +
+                "elementId='" + elementId + '\'' +
+                ", event=" + event +
+                '}';
     }
 }

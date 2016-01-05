@@ -64,7 +64,7 @@ public class DeltaEventKey implements Serializable {
     public boolean equals(Object that){
         if(this == that)
             return true;
-        if(!(that instanceof DeltaEventKey))
+        if(that == null && !(that instanceof DeltaEventKey))
             return false;
         DeltaEventKey thatKey = (DeltaEventKey)that;
         if(thatKey.applicationId.equals(this.applicationId) &&
@@ -88,5 +88,14 @@ public class DeltaEventKey implements Serializable {
         site = s.readUTF();
         applicationId = s.readUTF();
         elementId = s.readUTF();
+    }
+
+    @Override
+    public String toString() {
+        return "DeltaEventKey{" +
+                "site='" + site + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", elementId='" + elementId + '\'' +
+                '}';
     }
 }
