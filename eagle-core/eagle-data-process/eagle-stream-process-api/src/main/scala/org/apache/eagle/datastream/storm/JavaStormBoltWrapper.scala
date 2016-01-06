@@ -23,14 +23,15 @@ import backtype.storm.topology.OutputFieldsDeclarer
 import backtype.storm.topology.base.BaseRichBolt
 import backtype.storm.tuple.{Fields, Tuple}
 import com.typesafe.config.Config
-import org.apache.eagle.alert.policystate.{StateMgmtService, EventReplayable}
-import org.apache.eagle.alert.policystate.snapshot.Snapshotable
+import org.apache.eagle.state.base.DeltaEventReplayable
 import org.apache.eagle.datastream.{Collector, EagleTuple, JavaStormStreamExecutor}
+import org.apache.eagle.state.StateMgmtService
+import org.apache.eagle.state.base.{DeltaEventReplayable, Snapshotable}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 
-case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecutor[EagleTuple]) extends BaseRichBolt with EventReplayable{
+case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecutor[EagleTuple]) extends BaseRichBolt with DeltaEventReplayable{
   val LOG = LoggerFactory.getLogger(JavaStormBoltWrapper.getClass)
   var _collector : OutputCollector = null
   @volatile var _snapshotLock : AnyRef = null
@@ -79,7 +80,7 @@ case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecuto
   }
 
   private def dispatchDeltaEventToStateMgmtService(input : Tuple) : Unit = {
-    _stateMgmtService.storeDeltaEvent(input.getValues)
+    _stateMgmtService.persist(input.getValues)
   }
 
   override def replay(event: scala.Any): Unit = {

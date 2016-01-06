@@ -23,7 +23,6 @@ import org.apache.eagle.alert.config.AbstractPolicyDefinition;
 import org.apache.eagle.alert.entity.AlertStreamSchemaEntity;
 import org.apache.eagle.alert.common.AlertConstants;
 import org.apache.eagle.alert.policy.PolicyManager;
-import org.apache.eagle.alert.policystate.snapshot.Snapshotable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -32,7 +31,7 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
-
+import org.apache.eagle.state.base.Snapshotable;
 import org.apache.eagle.alert.entity.AlertDefinitionAPIEntity;
 import org.apache.eagle.alert.policy.PolicyEvaluator;
 import org.apache.eagle.dataproc.core.JsonSerDeserUtils;

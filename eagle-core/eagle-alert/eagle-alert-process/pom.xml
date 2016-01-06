@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>eagle</groupId>
-            <artifactId>eagle-policy-state</artifactId>
+            <artifactId>eagle-executor-state</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
