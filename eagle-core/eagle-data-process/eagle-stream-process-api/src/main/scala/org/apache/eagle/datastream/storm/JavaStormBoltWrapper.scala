@@ -17,17 +17,14 @@
 package org.apache.eagle.datastream.storm
 
 import java.util
-import java.util.concurrent.atomic.AtomicBoolean
 
 import backtype.storm.task.{OutputCollector, TopologyContext}
 import backtype.storm.topology.OutputFieldsDeclarer
 import backtype.storm.topology.base.BaseRichBolt
 import backtype.storm.tuple.{Fields, Tuple}
 import com.typesafe.config.Config
-import org.apache.eagle.alert.policystate.{StateMgmtService, EventReplayable, StateRecoveryService}
-import org.apache.eagle.alert.policystate.deltaevent.{DeltaEventReplayCallback, DeltaEventKafkaDAOImpl, DeltaEventDAO}
-import org.apache.eagle.alert.policystate.deltaeventid.{DeltaEventIdRangeEagleServiceDAOImpl, DeltaEventIdRangeDAO}
-import org.apache.eagle.alert.policystate.snapshot.{StateSnapshotEagleServiceDAOImpl, StateSnapshotDAO, Snapshotable, StateSnapshotService}
+import org.apache.eagle.alert.policystate.{StateMgmtService, EventReplayable}
+import org.apache.eagle.alert.policystate.snapshot.Snapshotable
 import org.apache.eagle.datastream.{Collector, EagleTuple, JavaStormStreamExecutor}
 import org.slf4j.LoggerFactory
 
@@ -42,9 +39,17 @@ case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecuto
   override def prepare(stormConf: util.Map[_, _], context: TopologyContext, collector: OutputCollector): Unit = {
     _collector = collector
     worker.init
-    if(worker.isInstanceOf[Snapshotable]) {
+    if(isStateMgmtEnabled() && worker.isInstanceOf[Snapshotable]) {
       _snapshotLock = new Object
       _stateMgmtService = new StateMgmtService(config, this, _snapshotLock, worker.asInstanceOf[Snapshotable])
+    }
+  }
+
+  private def isStateMgmtEnabled() : Boolean = {
+    try {
+      return config.getBoolean("eagleProps.executorState.enabled");
+    } catch{
+      case ex => return false
     }
   }
 
