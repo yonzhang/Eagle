@@ -44,16 +44,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class StateMgmtService{
     private static final Logger LOG = LoggerFactory.getLogger(StateMgmtService.class);
 
-    private Config config;
-    private transient StateSnapshotService _snapshotService;
     private Object _snapshotLock;
     private DeltaEventDAO _deltaEventDAO;
     private DeltaEventIdRangeDAO _deltaEventIdRangeDAO;
     private AtomicBoolean _shouldPersistIdRange = new AtomicBoolean(false);
-    private Snapshotable snapshotable;
 
     public StateMgmtService(Config config, final EventReplayable replayable, Object snapshotLock, Snapshotable snapshotable){
-        this.config = config;
         _snapshotLock = snapshotLock;
         _deltaEventDAO = new DeltaEventKafkaDAOImpl(config, snapshotable.getElementId());
         _deltaEventIdRangeDAO = new DeltaEventIdRangeEagleServiceDAOImpl(config, snapshotable.getElementId());
@@ -77,11 +73,10 @@ public class StateMgmtService{
         );
         recoverySvc.recover();
         // make sure snapshot only works after recover is done
-        _snapshotService =
-                new StateSnapshotService(config, snapshotable, new StateSnapshotEagleServiceDAOImpl(config), _snapshotLock, _shouldPersistIdRange);
+        new StateSnapshotService(config, snapshotable, new StateSnapshotEagleServiceDAOImpl(config), _snapshotLock, _shouldPersistIdRange);
     }
 
-    public void dispatchToDeltaEventPersist(List input) throws Exception{
+    public void storeDeltaEvent(List input) throws Exception{
         long offset = _deltaEventDAO.write(input);
         if(_shouldPersistIdRange.get()){
             _deltaEventIdRangeDAO.write(offset);

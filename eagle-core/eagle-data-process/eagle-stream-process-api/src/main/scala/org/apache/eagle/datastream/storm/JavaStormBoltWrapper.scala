@@ -36,7 +36,7 @@ import scala.collection.JavaConverters._
 case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecutor[EagleTuple]) extends BaseRichBolt with EventReplayable{
   val LOG = LoggerFactory.getLogger(StormBoltWrapper.getClass)
   var _collector : OutputCollector = null
-  var _snapshotLock : AnyRef = null
+  @volatile var _snapshotLock : AnyRef = null
   var _stateMgmtService : StateMgmtService = null
 
   override def prepare(stormConf: util.Map[_, _], context: TopologyContext, collector: OutputCollector): Unit = {
@@ -49,20 +49,32 @@ case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecuto
   }
 
   override def execute(input : Tuple): Unit ={
-    _snapshotLock.synchronized {
-      // the sequence of dispatch is significant, don't exchange them
-      dispatchToFlatmap(input)
-      _stateMgmtService.dispatchToDeltaEventPersist(input.getValues)
-      _collector.ack(input)
-    }
+      _snapshotLock match{
+        case null => {
+          dispatchDeltaEventToWorker(input)
+          _collector.ack(input)
+        }
+        case _ => {
+          _snapshotLock.synchronized {
+            // the sequence of dispatch is significant, don't exchange them
+            dispatchDeltaEventToWorker(input)
+            dispatchDeltaEventToStateMgmtService(input)
+            _collector.ack(input)
+          }
+        }
+      }
   }
 
-  private def dispatchToFlatmap(input : Tuple) : Unit = {
+  private def dispatchDeltaEventToWorker(input : Tuple) : Unit = {
     worker.flatMap(input.getValues, new Collector[EagleTuple]() {
       def collect(t: EagleTuple): Unit = {
         _collector.emit(input, t.getList.asJava)
       }
     })
+  }
+
+  private def dispatchDeltaEventToStateMgmtService(input : Tuple) : Unit = {
+    _stateMgmtService.storeDeltaEvent(input.getValues)
   }
 
   override def replay(event: scala.Any): Unit = {
