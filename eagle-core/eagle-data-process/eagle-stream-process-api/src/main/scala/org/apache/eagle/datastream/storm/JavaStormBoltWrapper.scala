@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 
 case class JavaStormBoltWrapper(config : Config, worker : JavaStormStreamExecutor[EagleTuple]) extends BaseRichBolt with EventReplayable{
-  val LOG = LoggerFactory.getLogger(StormBoltWrapper.getClass)
+  val LOG = LoggerFactory.getLogger(JavaStormBoltWrapper.getClass)
   var _collector : OutputCollector = null
   @volatile var _snapshotLock : AnyRef = null
   var _stateMgmtService : StateMgmtService = null
