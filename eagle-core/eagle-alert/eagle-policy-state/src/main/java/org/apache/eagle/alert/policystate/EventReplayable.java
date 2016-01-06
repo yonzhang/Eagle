@@ -17,24 +17,11 @@
  *
  */
 
-package org.apache.eagle.alert.policystate.deltaevent;
-
-import java.util.*;
+package org.apache.eagle.alert.policystate;
 
 /**
- * Read kafka message for a specific offset range
+ * interface for replaying delta event
  */
-public class TestReadKafkaWithOffsetRange {
-    public static void main(String[] args) throws Exception{
-        int port = 6667;
-        String topic = "executorStateTopic_sandbox_eventSource";
-        int partition = 1;
-        KafkaReadWithOffsetRange test = new KafkaReadWithOffsetRange(Collections.singletonList("localhost"), port, topic, partition, new DeltaEventValueDeserializer());
-        test.readUntilMaxOffset(300, new DeltaEventReplayCallback() {
-            @Override
-            public void replay(Object event) {
-                System.out.println(event);
-            }
-        });
-    }
+public interface EventReplayable {
+    void replay(Object event);
 }

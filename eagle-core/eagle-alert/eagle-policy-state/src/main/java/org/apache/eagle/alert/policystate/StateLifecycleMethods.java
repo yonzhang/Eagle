@@ -1,4 +1,4 @@
-/*
+package org.apache.eagle.alert.policystate;/*
  *
  *  * Licensed to the Apache Software Foundation (ASF) under one or more
  *  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,24 +17,14 @@
  *
  */
 
-package org.apache.eagle.alert.policystate.deltaevent;
-
-import java.util.*;
+import org.apache.eagle.alert.policystate.deltaevent.DeltaEventReplayCallback;
 
 /**
- * Read kafka message for a specific offset range
+ * lifecycle methods for state management
  */
-public class TestReadKafkaWithOffsetRange {
-    public static void main(String[] args) throws Exception{
-        int port = 6667;
-        String topic = "executorStateTopic_sandbox_eventSource";
-        int partition = 1;
-        KafkaReadWithOffsetRange test = new KafkaReadWithOffsetRange(Collections.singletonList("localhost"), port, topic, partition, new DeltaEventValueDeserializer());
-        test.readUntilMaxOffset(300, new DeltaEventReplayCallback() {
-            @Override
-            public void replay(Object event) {
-                System.out.println(event);
-            }
-        });
-    }
+public interface StateLifecycleMethods {
+    byte[] readSnapshot();
+    void writeSnapshot(byte[] snapshot);
+    void readDeltaEvent(DeltaEventReplayCallback callback);
+    void writeDeltaEvent(Object event);
 }

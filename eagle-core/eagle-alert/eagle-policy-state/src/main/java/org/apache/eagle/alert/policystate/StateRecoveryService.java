@@ -72,7 +72,12 @@ public class StateRecoveryService {
             LOG.error("error finding latest state snapshot, but continue to run", ex);
             return;
         }
-        byte[] snapshot = snapshotEntity.getState();
+        byte[] snapshot = null;
+        if(snapshotEntity != null) {
+            snapshot = snapshotEntity.getState();
+        }else{
+            LOG.warn("snapshot is empty, continue to run");
+        }
         snapshotable.restoreState(snapshot);
         LOG.info("step 1 of 2, end restoring snapshot for " + applicationId + "/" + elementId);
         // apply delta devents
