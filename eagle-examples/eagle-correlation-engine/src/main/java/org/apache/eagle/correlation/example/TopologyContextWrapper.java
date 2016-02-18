@@ -1,4 +1,4 @@
-package org.apache.eagle.correlation;
+package org.apache.eagle.correlation.example;
 
 import backtype.storm.metric.api.*;
 import backtype.storm.task.IMetricsContext;

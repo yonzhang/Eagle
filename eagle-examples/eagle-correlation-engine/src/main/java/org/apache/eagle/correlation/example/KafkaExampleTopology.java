@@ -1,4 +1,4 @@
-package org.apache.eagle.correlation;
+package org.apache.eagle.correlation.example;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -6,14 +6,9 @@ import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.spout.Scheme;
 import backtype.storm.spout.SchemeAsMultiScheme;
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BoltDeclarer;
-import backtype.storm.topology.IRichBolt;
-import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
 import backtype.storm.utils.Utils;
 import kafka.serializer.StringDecoder;
 import storm.kafka.BrokerHosts;
@@ -23,7 +18,6 @@ import storm.kafka.ZkHosts;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created on 2/17/16.
@@ -70,30 +64,5 @@ public class KafkaExampleTopology {
         }
     }
 
-    public static class MyBolt implements IRichBolt{
-        @Override
-        public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
 
-        }
-
-        @Override
-        public void execute(Tuple input) {
-            System.out.println("tuple is coming: " + input);
-        }
-
-        @Override
-        public void cleanup() {
-
-        }
-
-        @Override
-        public void declareOutputFields(OutputFieldsDeclarer declarer) {
-
-        }
-
-        @Override
-        public Map<String, Object> getComponentConfiguration() {
-            return null;
-        }
-    }
 }

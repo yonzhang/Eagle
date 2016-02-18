@@ -1,4 +1,4 @@
-package org.apache.eagle.correlation;
+package org.apache.eagle.correlation.example;
 
 import backtype.storm.spout.ISpoutOutputCollector;
 import backtype.storm.spout.SpoutOutputCollector;
@@ -18,8 +18,12 @@ public class SpoutOutputCollectorWrapper extends SpoutOutputCollector {
     }
     @Override
     public List<Integer> emit(List<Object> tuple, Object messageId) {
-        System.out.println("emitted tuple: " + tuple + ", with message Id: " + messageId);
-        delegate.emit("default", tuple, messageId);
+        // decode tuple to have field topic and field f1
+        String topic = (String)tuple.get(0);
+        System.out.println("emitted tuple: " + tuple + ", with message Id: " + messageId + ", with topic " + topic);
+        KafkaMessageIdWrapper newMessageId = new KafkaMessageIdWrapper(messageId);
+        newMessageId.topic = topic;
+        delegate.emit("default", tuple, newMessageId);
         return null;
     }
 }
