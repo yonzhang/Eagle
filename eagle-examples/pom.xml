@@ -30,6 +30,7 @@
     <modules>
         <module>eagle-topology-example</module>
         <module>eagle-correlation-engine</module>
+        <module>eagle-correlation-service</module>
     </modules>
 
 
