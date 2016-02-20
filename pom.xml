@@ -792,14 +792,14 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.rat</groupId>
-                    <artifactId>apache-rat-plugin</artifactId>
-                    <version>${maven-apache-rat.version}</version>
-                    <configuration>
-                        <useDefaultExcludes>true</useDefaultExcludes>
-                    </configuration>
-                </plugin>
+                <!--<plugin>-->
+                    <!--<groupId>org.apache.rat</groupId>-->
+                    <!--<artifactId>apache-rat-plugin</artifactId>-->
+                    <!--<version>${maven-apache-rat.version}</version>-->
+                    <!--<configuration>-->
+                        <!--<useDefaultExcludes>true</useDefaultExcludes>-->
+                    <!--</configuration>-->
+                <!--</plugin>-->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
