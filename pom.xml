@@ -870,75 +870,75 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>header-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <excludes>
-                                <!-- Git specific files -->
-                                <exclude>.git/</exclude>
-                                <exclude>.java-version</exclude>
-                                <exclude>.gitignore</exclude>
-                                <!-- IDE specific files-->
-                                <exclude>**/.idea/</exclude>
-                                <exclude>**/.cache-main</exclude>
-                                <exclude>**/.scalastyle/</exclude>
-                                <exclude>**/*.iml</exclude>
-                                <exclude>**/nb-configuration.xml</exclude>
-                                <exclude>**/.classpath</exclude>
-                                <exclude>**/.settings/**</exclude>
-                                <exclude>**/.project</exclude>
-                                <exclude>**/.metadata/</exclude>
-                                <!-- Maven working directory -->
-                                <exclude>**/target/**</exclude>
-                                <!-- Patch files which can be lying around -->
-                                <exclude>**/*.patch</exclude>
-                                <exclude>**/*.rej</exclude>
-                                <!-- Exclude generated files -->
-                                <exclude>**/gen/**</exclude>
-                                <!-- README and test data with exact format -->
-                                <exclude>README*</exclude>
-                                <exclude>**/*.log</exclude>
-                                <exclude>**/eagle.log*</exclude>
-                                <exclude>**/velocity.log*</exclude>
-                                <!-- all json files should be excluded -->
-                                <exclude>**/*.json</exclude>
-                                <exclude>**/resources/eagle.siddhiext</exclude>
-                                <exclude>**/test/resources/securityAuditLog</exclude>
-                                <exclude>**/resources/**/ml-policyDef-UserProfile.txt</exclude>
-                                <exclude>**/test/resources/onelinehiveauditlog.txt</exclude>
-                                <exclude>**/test/resources/ranger-policy-update-request.txt</exclude>
-                                <exclude>**/dev-supports/**/*.json</exclude>
-                                <exclude>**/dev-supports/**/useractivity-agg-json.txt</exclude>
-                                <exclude>**/conf/sandbox-userprofile-topology.conf</exclude>
-                                <exclude>**/kafka-python/**</exclude>
-                                <exclude>**/six/**</exclude>
-                                <!-- Fonts and Images -->
-                                <exclude>**/fonts/**</exclude>
-                                <exclude>**/images/**</exclude>
-                                <exclude>**/lib/js/**</exclude>
-                                <exclude>**/lib/css/**</exclude>
-                                <exclude>**/*.min.js</exclude>
-                                <exclude>**/jquery-*.js</exclude>
-                                <exclude>**/MANIFEST.MF</exclude>
-                                <!-- External dependency script -->
-                                <exclude>**/resource/serf/etc/ambari.json</exclude>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.rat</groupId>-->
+                <!--<artifactId>apache-rat-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>header-check</id>-->
+                        <!--<phase>verify</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>check</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<excludes>-->
+                                <!--&lt;!&ndash; Git specific files &ndash;&gt;-->
+                                <!--<exclude>.git/</exclude>-->
+                                <!--<exclude>.java-version</exclude>-->
+                                <!--<exclude>.gitignore</exclude>-->
+                                <!--&lt;!&ndash; IDE specific files&ndash;&gt;-->
+                                <!--<exclude>**/.idea/</exclude>-->
+                                <!--<exclude>**/.cache-main</exclude>-->
+                                <!--<exclude>**/.scalastyle/</exclude>-->
+                                <!--<exclude>**/*.iml</exclude>-->
+                                <!--<exclude>**/nb-configuration.xml</exclude>-->
+                                <!--<exclude>**/.classpath</exclude>-->
+                                <!--<exclude>**/.settings/**</exclude>-->
+                                <!--<exclude>**/.project</exclude>-->
+                                <!--<exclude>**/.metadata/</exclude>-->
+                                <!--&lt;!&ndash; Maven working directory &ndash;&gt;-->
+                                <!--<exclude>**/target/**</exclude>-->
+                                <!--&lt;!&ndash; Patch files which can be lying around &ndash;&gt;-->
+                                <!--<exclude>**/*.patch</exclude>-->
+                                <!--<exclude>**/*.rej</exclude>-->
+                                <!--&lt;!&ndash; Exclude generated files &ndash;&gt;-->
+                                <!--<exclude>**/gen/**</exclude>-->
+                                <!--&lt;!&ndash; README and test data with exact format &ndash;&gt;-->
+                                <!--<exclude>README*</exclude>-->
+                                <!--<exclude>**/*.log</exclude>-->
+                                <!--<exclude>**/eagle.log*</exclude>-->
+                                <!--<exclude>**/velocity.log*</exclude>-->
+                                <!--&lt;!&ndash; all json files should be excluded &ndash;&gt;-->
+                                <!--<exclude>**/*.json</exclude>-->
+                                <!--<exclude>**/resources/eagle.siddhiext</exclude>-->
+                                <!--<exclude>**/test/resources/securityAuditLog</exclude>-->
+                                <!--<exclude>**/resources/**/ml-policyDef-UserProfile.txt</exclude>-->
+                                <!--<exclude>**/test/resources/onelinehiveauditlog.txt</exclude>-->
+                                <!--<exclude>**/test/resources/ranger-policy-update-request.txt</exclude>-->
+                                <!--<exclude>**/dev-supports/**/*.json</exclude>-->
+                                <!--<exclude>**/dev-supports/**/useractivity-agg-json.txt</exclude>-->
+                                <!--<exclude>**/conf/sandbox-userprofile-topology.conf</exclude>-->
+                                <!--<exclude>**/kafka-python/**</exclude>-->
+                                <!--<exclude>**/six/**</exclude>-->
+                                <!--&lt;!&ndash; Fonts and Images &ndash;&gt;-->
+                                <!--<exclude>**/fonts/**</exclude>-->
+                                <!--<exclude>**/images/**</exclude>-->
+                                <!--<exclude>**/lib/js/**</exclude>-->
+                                <!--<exclude>**/lib/css/**</exclude>-->
+                                <!--<exclude>**/*.min.js</exclude>-->
+                                <!--<exclude>**/jquery-*.js</exclude>-->
+                                <!--<exclude>**/MANIFEST.MF</exclude>-->
+                                <!--&lt;!&ndash; External dependency script &ndash;&gt;-->
+                                <!--<exclude>**/resource/serf/etc/ambari.json</exclude>-->
 
-                                <!-- TODO: fix it -->
-                                <exclude>**/webapp/**</exclude>
+                                <!--&lt;!&ndash; TODO: fix it &ndash;&gt;-->
+                                <!--<exclude>**/webapp/**</exclude>-->
 
-                            </excludes>
-                         </configuration>
-                     </execution>
-                 </executions>
-             </plugin>
+                            <!--</excludes>-->
+                         <!--</configuration>-->
+                     <!--</execution>-->
+                 <!--</executions>-->
+             <!--</plugin>-->
          </plugins>
     </build>
     <repositories>
