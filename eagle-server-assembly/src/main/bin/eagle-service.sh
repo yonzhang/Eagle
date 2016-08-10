@@ -35,6 +35,8 @@ PIDFILE="${DIR}/eagle-service.pid"
 
 CONFIGURATION_YML="${DIR}/../conf/configuration.yml"
 
+DEBUG_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
+
 PROGRAM="java -cp $EAGLE_CLASSPATH org.apache.eagle.server.ServerMain server ${CONFIGURATION_YML}"
 
 start() {

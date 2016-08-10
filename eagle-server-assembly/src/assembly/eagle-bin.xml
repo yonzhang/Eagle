@@ -71,12 +71,23 @@
             <lineEnding>unix</lineEnding>
         </fileSet>
 
+        <fileSet>
+            <directory>${project.basedir}/../eagle-topology-assembly/target</directory>
+            <outputDirectory>lib/</outputDirectory>
+            <includes>
+                <include>eagle-topology-*-assembly.jar</include>
+            </includes>
+        </fileSet>
+
         <!-- copy dependent jars into /lib -->
         <fileSet>
             <directory>${project.build.directory}/lib</directory>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>*</include>
+                <include>dropwizard-*.jar</include>
+                <include>storm-core-*.jar</include>
+                <include>slf4j-api-*.jar</include>
+                <include>jersey-*.jar</include>
             </includes>
         </fileSet>
     </fileSets>
