@@ -59,7 +59,7 @@ public class SensitivityMetadataResource {
         return dao.listHdfsSensitivities();
     }
 
-    @Path("/hbase")
+    @Path("/hdfs")
     @POST
     @Consumes("application/json")
     public void addHdfsSensitivities(Collection<HdfsSensitivityEntity> list){

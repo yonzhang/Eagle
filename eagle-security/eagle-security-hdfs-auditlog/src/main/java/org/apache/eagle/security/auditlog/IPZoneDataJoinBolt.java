@@ -52,7 +52,7 @@ public class IPZoneDataJoinBolt extends BaseRichBolt {
 		this.collector = collector;
 		// start ipzone data polling
 		try{
-			ExternalDataJoiner joiner = new ExternalDataJoiner(IPZonePollingJob.class, config, "1");
+			ExternalDataJoiner joiner = new ExternalDataJoiner(IPZonePollingJob.class, config, context.getThisComponentId() + "." + context.getThisTaskIndex());
 			joiner.start();
 		}catch(Exception ex){
 			LOG.error("Fail bring up quartz scheduler", ex);

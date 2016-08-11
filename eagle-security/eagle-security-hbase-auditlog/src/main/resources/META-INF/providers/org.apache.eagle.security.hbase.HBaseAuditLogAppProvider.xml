@@ -19,8 +19,8 @@
   -->
 
 <application>
-    <type>HdfsAuditLogApplication</type>
-    <name>Hdfs Audit Log Monitoring Application</name>
+    <type>HbaseAuditLogApplication</type>
+    <name>Hbase Audit Log Monitoring Application</name>
     <version>0.5.0-incubating</version>
     <appClass>org.apache.eagle.security.hbase.HBaseAuditLogApplication</appClass>
     <viewPath>/apps/example</viewPath>
@@ -28,7 +28,7 @@
         <property>
             <name>dataSourceConfig.topic</name>
             <displayName>dataSourceConfig.topic</displayName>
-            <value>hdfs_audit_log</value>
+            <value>hbase_audit_log</value>
             <description>data source topic</description>
         </property>
         <property>
@@ -154,7 +154,7 @@
         <property>
             <name>dataSinkConfig.topic</name>
             <displayName>dataSinkConfig.topic</displayName>
-            <value>hdfs_audit_log_parsed</value>
+            <value>hbase_audit_log_parsed</value>
             <description>topic for kafka data sink</description>
         </property>
         <property>
@@ -198,8 +198,8 @@
     </configuration>
     <streams>
         <stream>
-            <streamId>hdfs_audit_log_stream</streamId>
-            <description>Hdfs Audit Log Stream</description>
+            <streamId>hbase_audit_log_stream</streamId>
+            <description>Hbase Audit Log Stream</description>
             <validate>true</validate>
             <timeseries>true</timeseries>
             <columns>
