@@ -14,19 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.eagle.security.service;
 
-import java.util.Collection;
-
 /**
- * Since 6/10/16.
+ * Since 8/10/16.
  */
-public interface ISecurityMetadataDAO {
-    Collection<HBaseSensitivityEntity> listHBaseSensitivies();
-    OpResult addHBaseSensitivity(Collection<HBaseSensitivityEntity> h);
-    Collection<HdfsSensitivityEntity> listHdfsSensitivities();
-    OpResult addHdfsSensitivity(Collection<HdfsSensitivityEntity> h);
-    Collection<IPZoneEntity> listIPZones();
-    OpResult addIPZone(Collection<IPZoneEntity> h);
+public class IPZoneEntity {
+    String iphost;
+    String securityZone;
+
+    public String getIphost() {
+        return iphost;
+    }
+
+    public void setIphost(String iphost) {
+        this.iphost = iphost;
+    }
+
+    public String getSecurityZone() {
+        return securityZone;
+    }
+
+    public void setSecurityZone(String securityZone) {
+        this.securityZone = securityZone;
+    }
 }

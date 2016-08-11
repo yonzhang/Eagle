@@ -14,19 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.eagle.security.service;
 
-import java.util.Collection;
-
 /**
- * Since 6/10/16.
+ * Since 8/10/16.
  */
-public interface ISecurityMetadataDAO {
-    Collection<HBaseSensitivityEntity> listHBaseSensitivies();
-    OpResult addHBaseSensitivity(Collection<HBaseSensitivityEntity> h);
-    Collection<HdfsSensitivityEntity> listHdfsSensitivities();
-    OpResult addHdfsSensitivity(Collection<HdfsSensitivityEntity> h);
-    Collection<IPZoneEntity> listIPZones();
-    OpResult addIPZone(Collection<IPZoneEntity> h);
+public class HdfsSensitivityEntity {
+    String site;
+    String filedir;
+    String sensitivityType;
+
+    public String getSite() {
+        return site;
+    }
+
+    public void setSite(String site) {
+        this.site = site;
+    }
+
+    public String getFiledir() {
+        return filedir;
+    }
+
+    public void setFiledir(String filedir) {
+        this.filedir = filedir;
+    }
+
+    public String getSensitivityType() {
+        return sensitivityType;
+    }
+
+    public void setSensitivityType(String sensitivityType) {
+        this.sensitivityType = sensitivityType;
+    }
 }

@@ -43,6 +43,12 @@ public class MetadataServiceClientImpl implements IMetadataServiceClient {
     private static final String METADATA_LIST_HBASE_SENSITIVITY_PATH = "/metadata/sensitivity/hbase";
     private static final String METADATA_ADD_HBASE_SENSITIVITY_PATH = "/metadata/sensitivity/hbase";
 
+    private static final String METADATA_LIST_HDFS_SENSITIVITY_PATH = "/metadata/sensitivity/hdfs";
+    private static final String METADATA_ADD_HDFS_SENSITIVITY_PATH = "/metadata/sensitivity/hdfs";
+
+    private static final String METADATA_LIST_IPZONE_PATH = "/metadata/ipzone";
+    private static final String METADATA_ADD_IPZONE_PATH = "/metadata/ipzone";
+
     private static final String METADATA_CLEAR_PATH = "/metadata/clear";
 
     private static final String EAGLE_CORRELATION_CONTEXT = "metadataService.context";
@@ -100,7 +106,7 @@ public class MetadataServiceClientImpl implements IMetadataServiceClient {
     }
 
     @Override
-    public Collection<HBaseSensitivityEntity> listHBaseSensitivies() {
+    public Collection<HBaseSensitivityEntity> listHBaseSensitivities() {
         return list(METADATA_LIST_HBASE_SENSITIVITY_PATH, new GenericType<List<HBaseSensitivityEntity>>() {
         });
     }
@@ -108,6 +114,32 @@ public class MetadataServiceClientImpl implements IMetadataServiceClient {
     @Override
     public OpResult addHBaseSensitivity(Collection<HBaseSensitivityEntity> h) {
         WebResource r = client.resource(basePath + METADATA_ADD_HBASE_SENSITIVITY_PATH);
+        r.accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON).post(h);
+        return new OpResult();
+    }
+
+    @Override
+    public Collection<HdfsSensitivityEntity> listHdfsSensitivities() {
+        return list(METADATA_LIST_HDFS_SENSITIVITY_PATH, new GenericType<List<HdfsSensitivityEntity>>() {
+        });
+    }
+
+    @Override
+    public OpResult addHdfsSensitivity(Collection<HdfsSensitivityEntity> h) {
+        WebResource r = client.resource(basePath + METADATA_ADD_HDFS_SENSITIVITY_PATH);
+        r.accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON).post(h);
+        return new OpResult();
+    }
+
+    @Override
+    public Collection<IPZoneEntity> listIPZones(){
+        return list(METADATA_LIST_IPZONE_PATH, new GenericType<List<IPZoneEntity>>() {
+        });
+    }
+
+    @Override
+    public OpResult addIPZone(Collection<IPZoneEntity> h){
+        WebResource r = client.resource(basePath + METADATA_ADD_IPZONE_PATH);
         r.accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON).post(h);
         return new OpResult();
     }

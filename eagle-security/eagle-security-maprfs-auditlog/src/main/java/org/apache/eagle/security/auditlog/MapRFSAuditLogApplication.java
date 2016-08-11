@@ -16,21 +16,29 @@
  *  * limitations under the License.
  *
  */
+package org.apache.eagle.security.auditlog;
 
-package org.apache.eagle.security.service;
-
-import java.io.Closeable;
-import java.io.Serializable;
-import java.util.Collection;
+import backtype.storm.topology.base.BaseRichBolt;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
- * service stub to get metadata from remote metadata service
+ * Since 8/11/16.
  */
-public interface IMetadataServiceClient extends Closeable, Serializable {
-    Collection<HBaseSensitivityEntity> listHBaseSensitivities();
-    OpResult addHBaseSensitivity(Collection<HBaseSensitivityEntity> h);
-    Collection<HdfsSensitivityEntity> listHdfsSensitivities();
-    OpResult addHdfsSensitivity(Collection<HdfsSensitivityEntity> h);
-    Collection<IPZoneEntity> listIPZones();
-    OpResult addIPZone(Collection<IPZoneEntity> h);
+public class MapRFSAuditLogApplication extends AbstractHdfsAuditLogApplication {
+    @Override
+    public BaseRichBolt getParserBolt() {
+        return new MapRFSAuditLogParserBolt();
+    }
+
+    @Override
+    public String getSinkStreamName() {
+        return "mapr_audit_log_stream";
+    }
+
+    public static void main(String[] args){
+        Config config = ConfigFactory.load();
+        MapRFSAuditLogApplication app = new MapRFSAuditLogApplication();
+        app.run(config);
+    }
 }
