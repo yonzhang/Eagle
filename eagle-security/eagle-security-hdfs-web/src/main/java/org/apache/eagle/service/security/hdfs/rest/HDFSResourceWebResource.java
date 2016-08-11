@@ -60,7 +60,6 @@ public class HDFSResourceWebResource {
 	public HDFSResourceWebResource(ApplicationEntityService entityService, Config eagleServerConfig){
 		this.entityService = entityService;
 		dao = MetadataDaoFactory.getMetadataDAO(eagleServerConfig);
-
 	}
 
 	@GET

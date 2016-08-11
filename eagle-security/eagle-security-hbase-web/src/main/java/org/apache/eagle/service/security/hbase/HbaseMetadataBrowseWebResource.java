@@ -49,8 +49,7 @@ public class HbaseMetadataBrowseWebResource {
     @Inject
     public HbaseMetadataBrowseWebResource(ApplicationEntityService entityService, Config eagleServerConfig){
         this.entityService = entityService;
-        dao = MetadataDaoFactory.getMetadataDAO(eagleServerConfig);
-
+        this.dao = MetadataDaoFactory.getMetadataDAO(eagleServerConfig);
     }
 
     private Map<String, Map<String, String>> getAllSensitivities(){

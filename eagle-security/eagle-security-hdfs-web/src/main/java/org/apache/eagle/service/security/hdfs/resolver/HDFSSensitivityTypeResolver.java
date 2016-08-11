@@ -36,12 +36,10 @@ import java.util.regex.Pattern;
 
 public class HDFSSensitivityTypeResolver implements AttributeResolvable<GenericAttributeResolveRequest,String> {
     private final static Logger LOG = LoggerFactory.getLogger(HDFSSensitivityTypeResolver.class);
-    private ApplicationEntityService entityService;
     private ISecurityMetadataDAO dao;
 
     @Inject
     public HDFSSensitivityTypeResolver(ApplicationEntityService entityService, Config eagleServerConfig){
-        this.entityService = entityService;
         dao = MetadataDaoFactory.getMetadataDAO(eagleServerConfig);
     }
 
