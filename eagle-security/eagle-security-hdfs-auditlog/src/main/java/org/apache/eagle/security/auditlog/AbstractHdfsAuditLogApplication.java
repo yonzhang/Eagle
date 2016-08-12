@@ -70,11 +70,11 @@ public abstract class AbstractHdfsAuditLogApplication extends StormApplication {
         HdfsAuditLogParserBolt parserBolt = new HdfsAuditLogParserBolt();
         BoltDeclarer boltDeclarer = builder.setBolt("parserBolt", parserBolt, numOfParserTasks);
 
-        Boolean balancePartition = config.hasPath("eagleProps.balancePartitionEnabled") && config.getBoolean("eagleProps.balancePartitionEnabled");
-        if(balancePartition){
-            boltDeclarer.customGrouping("ingest", new CustomPartitionGrouping(createStrategy(config)));
-        }else{
+        Boolean useDefaultPartition = !config.hasPath("eagleProps.useDefaultPartition") || config.getBoolean("eagleProps.useDefaultPartition");
+        if(useDefaultPartition){
             boltDeclarer.fieldsGrouping("ingest", new Fields(StringScheme.STRING_SCHEME_KEY));
+        }else{
+            boltDeclarer.customGrouping("ingest", new CustomPartitionGrouping(createStrategy(config)));
         }
 
         FileSensitivityDataJoinBolt sensitivityDataJoinBolt = new FileSensitivityDataJoinBolt(config);

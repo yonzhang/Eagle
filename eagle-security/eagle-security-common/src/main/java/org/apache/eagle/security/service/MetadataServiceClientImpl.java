@@ -40,16 +40,14 @@ public class MetadataServiceClientImpl implements IMetadataServiceClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(MetadataServiceClientImpl.class);
 
-    private static final String METADATA_LIST_HBASE_SENSITIVITY_PATH = "/metadata/sensitivity/hbase";
-    private static final String METADATA_ADD_HBASE_SENSITIVITY_PATH = "/metadata/sensitivity/hbase";
+    private static final String METADATA_LIST_HBASE_SENSITIVITY_PATH = "/metadata/security/hbaseSensitivity";
+    private static final String METADATA_ADD_HBASE_SENSITIVITY_PATH = "/metadata/security/hbaseSensitivity";
 
-    private static final String METADATA_LIST_HDFS_SENSITIVITY_PATH = "/metadata/sensitivity/hdfs";
-    private static final String METADATA_ADD_HDFS_SENSITIVITY_PATH = "/metadata/sensitivity/hdfs";
+    private static final String METADATA_LIST_HDFS_SENSITIVITY_PATH = "/metadata/security/hdfsSensitivity";
+    private static final String METADATA_ADD_HDFS_SENSITIVITY_PATH = "/metadata/security/hdfsSensitivity";
 
-    private static final String METADATA_LIST_IPZONE_PATH = "/metadata/ipzone";
-    private static final String METADATA_ADD_IPZONE_PATH = "/metadata/ipzone";
-
-    private static final String METADATA_CLEAR_PATH = "/metadata/clear";
+    private static final String METADATA_LIST_IPZONE_PATH = "/metadata/security/ipzone";
+    private static final String METADATA_ADD_IPZONE_PATH = "/metadata/security/ipzone";
 
     private static final String EAGLE_CORRELATION_CONTEXT = "metadataService.context";
     private static final String EAGLE_CORRELATION_SERVICE_PORT = "metadataService.port";

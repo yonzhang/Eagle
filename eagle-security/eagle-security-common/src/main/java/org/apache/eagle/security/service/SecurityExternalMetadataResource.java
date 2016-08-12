@@ -27,42 +27,56 @@ import java.util.Collection;
 /**
  * Since 6/10/16.
  */
-@Path("/metadata/sensitivity")
+@Path("/metadata/security")
 @Singleton
-public class SensitivityMetadataResource {
+public class SecurityExternalMetadataResource {
     private ApplicationEntityService entityService;
     private ISecurityMetadataDAO dao;
     @Inject
-    public SensitivityMetadataResource(ApplicationEntityService entityService, Config eagleServerConfig){
+    public SecurityExternalMetadataResource(ApplicationEntityService entityService, Config eagleServerConfig){
         this.entityService = entityService;
         dao = MetadataDaoFactory.getMetadataDAO(eagleServerConfig);
     }
 
-    @Path("/hbase")
+    @Path("/hbaseSensitivity")
     @GET
     @Produces("application/json")
     public Collection<HBaseSensitivityEntity> getHBaseSensitivites(@QueryParam("site") String site){
         return dao.listHBaseSensitivies();
     }
 
-    @Path("/hbase")
+    @Path("/hbaseSensitivity")
     @POST
     @Consumes("application/json")
     public void addHBaseSensitivities(Collection<HBaseSensitivityEntity> list){
         dao.addHBaseSensitivity(list);
     }
 
-    @Path("/hdfs")
+    @Path("/hdfsSensitivity")
     @GET
     @Produces("application/json")
     public Collection<HdfsSensitivityEntity> getHdfsSensitivities(@QueryParam("site") String site){
         return dao.listHdfsSensitivities();
     }
 
-    @Path("/hdfs")
+    @Path("/hdfsSensitivity")
     @POST
     @Consumes("application/json")
     public void addHdfsSensitivities(Collection<HdfsSensitivityEntity> list){
         dao.addHdfsSensitivity(list);
+    }
+
+    @Path("/ipzone")
+    @GET
+    @Produces("application/json")
+    public Collection<IPZoneEntity> getIPZones(){
+        return dao.listIPZones();
+    }
+
+    @Path("/ipzone")
+    @POST
+    @Consumes("application/json")
+    public void addIPZones(Collection<IPZoneEntity> list){
+        dao.addIPZone(list);
     }
 }
