@@ -36,7 +36,7 @@ public class MetadataDaoFactory {
         String storeCls = eagleServerConfig.getString("metadata.store");
 
         ISecurityMetadataDAO dao = null;
-        if (!storeCls.equalsIgnoreCase("org.apache.eagle.metadata.service.memory.MemoryMetadataStore")) {
+        if (storeCls.equalsIgnoreCase("org.apache.eagle.metadata.service.memory.MemoryMetadataStore")) {
             dao = new InMemMetadataDaoImpl();
         } else {
             dao = new JDBCSecurityMetadataDAO(eagleServerConfig);

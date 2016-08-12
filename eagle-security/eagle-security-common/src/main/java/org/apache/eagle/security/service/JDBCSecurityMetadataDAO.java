@@ -198,11 +198,12 @@ public class JDBCSecurityMetadataDAO implements ISecurityMetadataDAO  {
 
     private Connection getJdbcConnection() throws Exception {
         Connection connection;
-        String conn = config.getString("connection");
         try {
-            connection = DriverManager.getConnection(conn, "root", "");
+            connection = DriverManager.getConnection(config.getString("metadata.jdbc.url"),
+                    config.getString("metadata.jdbc.username"),
+                    config.getString("metadata.jdbc.password"));
         } catch (Exception e) {
-            LOG.error("error get connection for {}", conn, e);
+            LOG.error("error get connection for {}", config.getString("metadata.jdbc.url"), e);
             throw e;
         }
         return connection;
