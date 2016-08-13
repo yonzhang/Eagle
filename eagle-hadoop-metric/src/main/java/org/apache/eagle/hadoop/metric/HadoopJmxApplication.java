@@ -14,22 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.eagle.hadoop.metric;
 
-import org.apache.eagle.datastream.ExecutionEnvironments;
-import org.apache.eagle.datastream.core.StreamProducer;
-import org.apache.eagle.datastream.storm.StormExecutionEnvironment;
-
 /**
- * Created on 1/12/16.
+ * Since 8/12/16.
  */
-public class HadoopJmxMetricMonitor {
-
-    public static void main(String[] args) {
-        StormExecutionEnvironment env = ExecutionEnvironments.get(args, StormExecutionEnvironment.class);
-        String streamName = "hadoopJmxMetricEventStream";
-        StreamProducer sp = env.fromSpout(Utils.createProvider(env.getConfig())).withOutputFields(2).nameAs(streamName);
-//        sp.alertWithConsumer(streamName, "hadoopJmxMetricAlertExecutor");
-        env.execute();
-    }
+public class HadoopJmxApplication {
 }
