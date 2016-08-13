@@ -17,8 +17,26 @@
 
 package org.apache.eagle.hadoop.metric;
 
+import backtype.storm.generated.StormTopology;
+import backtype.storm.topology.TopologyBuilder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.apache.eagle.app.StormApplication;
+import org.apache.eagle.app.environment.impl.StormEnvironment;
+
 /**
  * Since 8/12/16.
  */
-public class HadoopJmxApplication {
+public class HadoopJmxApplication extends StormApplication {
+    @Override
+    public StormTopology execute(Config config, StormEnvironment environment) {
+        TopologyBuilder builder = new TopologyBuilder();
+        return builder.createTopology();
+    }
+
+    public static void main(String[] args){
+        Config config = ConfigFactory.load();
+        HadoopJmxApplication app = new HadoopJmxApplication();
+        app.run(config);
+    }
 }

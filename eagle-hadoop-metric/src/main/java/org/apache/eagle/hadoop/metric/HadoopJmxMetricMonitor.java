@@ -17,7 +17,6 @@
 package org.apache.eagle.hadoop.metric;
 
 import org.apache.eagle.datastream.ExecutionEnvironments;
-import org.apache.eagle.datastream.core.StreamProducer;
 import org.apache.eagle.datastream.storm.StormExecutionEnvironment;
 
 /**
@@ -26,10 +25,10 @@ import org.apache.eagle.datastream.storm.StormExecutionEnvironment;
 public class HadoopJmxMetricMonitor {
 
     public static void main(String[] args) {
-        StormExecutionEnvironment env = ExecutionEnvironments.get(args, StormExecutionEnvironment.class);
-        String streamName = "hadoopJmxMetricEventStream";
-        StreamProducer sp = env.fromSpout(Utils.createProvider(env.getConfig())).withOutputFields(2).nameAs(streamName);
+//        StormExecutionEnvironment env = ExecutionEnvironments.get(args, StormExecutionEnvironment.class);
+//        String streamName = "hadoopJmxMetricEventStream";
+//        StreamProducer sp = env.fromSpout(Utils.createProvider(env.getConfig())).withOutputFields(2).nameAs(streamName);
 //        sp.alertWithConsumer(streamName, "hadoopJmxMetricAlertExecutor");
-        env.execute();
+//        env.execute();
     }
 }
