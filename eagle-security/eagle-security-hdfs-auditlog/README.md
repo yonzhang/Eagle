@@ -132,3 +132,60 @@ http://localhost:9090/rest/metadata/datasources GET
 ### 4.2 Check if alert stream is creatd
 http://localhost:9090/rest/metadata/streams GET
 
+## 5 Create alert policy and verify alert
+### 5.1 create one policy
+
+http://localhost:9090/rest/metadata/policies POST
+```
+{
+   "name": "hdfsPolicy",
+   "description": "hdfsPolicy",
+   "inputStreams": [
+      "hdfs_audit_log_enriched_stream"
+   ],
+   "outputStreams": [
+      "hdfs_audit_log_enriched_stream_out"
+   ],
+   "definition": {
+      "type": "siddhi",
+      "value": "from hdfs_audit_log_enriched_stream[user=='hadoop'] select * insert into hdfs_audit_log_enriched_stream_out"
+   },
+   "partitionSpec": [
+      {
+         "streamId": "hdfs_audit_log_enriched_stream",
+         "type": "GROUPBY",
+         "columns" : [
+            "user"
+         ]
+      }
+   ],
+   "parallelismHint": 2
+}
+```
+
+### 5.2 Create alert publishment
+```
+{
+	"name":"hdfs_audit_log_enriched_stream_out",
+	"type":"org.apache.eagle.alert.engine.publisher.impl.AlertEmailPublisher",
+	"policyIds": [
+		"hdfsPolicy"
+	],
+	"properties": {
+	  "subject":"alert when user is hadoop",
+	  "template":"",
+	  "sender": "eagle@apache.org",
+	  "recipients": "eagle@apache.org",
+	  "mail.smtp.host":"",
+	  "connection": "plaintext",
+	  "mail.smtp.port": "25"
+	},
+	"dedupIntervalMin" : "PT1M",
+	"serializer" : "org.apache.eagle.alert.engine.publisher.impl.StringEventSerializer"
+}
+```
+
+### 5.3 Send message and verify alert
+./kafka-console-producer.sh --topic hdfs_audit_log --broker-list sandbox.hortonworks.com:6667
+
+2015-04-24 12:51:31,798 INFO FSNamesystem.audit: allowed=true	ugi=hdfs (auth:SIMPLE)	ip=/10.0.2.15	cmd=getfileinfo	src=/apps/hbase/data	dst=null	perm=null	proto=rpc
